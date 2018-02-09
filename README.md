@@ -1,5 +1,6 @@
 # Introduction
 
+[![Documentation](https://img.shields.io/badge/documentation-master-green.svg)](http://ganbase.readthedocs.io/en/latest)
 [![PyPI Version](https://img.shields.io/pypi/v/ganbase.svg)](https://pypi.python.org/pypi/ganbase)
 [![Python Version](https://img.shields.io/pypi/pyversions/ganbase.svg)]()
 [![Build Status](https://travis-ci.org/innerlee/ganbase.svg?branch=master)](https://travis-ci.org/innerlee/ganbase)
@@ -20,5 +21,3 @@ Try and start with
 ```shell
 pip install ganbase
 ```
-
-See [documentation](http://ganbase.readthedocs.io/en/latest) for more features and usage.
