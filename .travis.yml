@@ -3,10 +3,12 @@ dist: trusty
 language: python
 
 before_install:
-  - sudo add-apt-repository -y ppa:mc3man/trusty-media
-  - sudo apt-get update
-  - sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libswscale-dev libgtk2.0-dev
-  - sudo apt-get install -y python-tk python3-tk
+  - sudo apt update
+  - sudo apt install python3.6
+  - which python3
+  - python3 --version
+  - which pip
+  - which pip3
 
 install:
   - pip install -r requirements.txt
@@ -14,17 +16,21 @@ install:
 
 cache:
   pip: true
-  directories:
-    - $OPENCV_INSTALL_PATH
 
 env:
   global:
     - COLUMNS=80
+    - secure: "IfDMQfW5lWTU07dRiQ7UL8OtVI18zBECgKkFLnX3j3F63nIWpt1e1KWd3JxUKHJkdFett3gW5oa/z2wRy9BhKKKXHhPRA7XqoClV5e5CZpz3q023hDsfWRvhHTPdFn65ghzspv2dhbzYK7mISS2vH1IZV6zA1BIuG2gOEzXKk+/CYoftVmEz2O98o/yOPkHiVQnEPey233KHVb7PU1xRJLSI4M+HTSXGSjpalMzaOFNghB78iKtgZ4JcmugKFZGfaAEa5pvTgbPzrXAqU04ISlTwDSu1Pq465xRKqqLTsri6F/waaCabmJU6MBRo8d8D0cVo5gIvx51HUcBShvamNXrNtVjQzFGnnwFouRSiMMAZwGXCJa+FJUaR27K2mD8FOgdtDyVWA4KzDStjXqkF65JanQAAifbRI/1/KDi2YmACqJUg+fFfQwxQqikt5Tw9yEywf/wj29LMRNmc1GOSp2aSqCPz5Ge5xq+UgjGdXH+P62pj3RBMr4sYJZVFrjrI8tT8G9qUGlYCJn5qcLEvdFNYMSsmKcnO2yjNZhI/o4uwbk0VC4IJ2i1RNVBccc+5YHwt0uYJAoQ48DDWYua5jdW+hs2etPc8x5JMKLw9VyQt3xFvOBRRKig0cylKdt0q6CJGdbhmnV1Ym6MlfDWe+xOffWohG04Tvi8VxGw24EQ="
 
 python:
   - "3.6"
 
-script: coverage run --source=ganbase setup.py test
+script:
+  - coverage run --source=ganbase setup.py test
+  - set -e
+  - <command to build docs>
+  - pip install doctr
+  - doctr deploy --built-docs <path/to/built/html/> <target-directory>
 
 after_success: codecov
 

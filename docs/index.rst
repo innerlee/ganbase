@@ -5,7 +5,7 @@
 
 
 Welcome to ganbase's documentation!
-==================================
+===================================
 
 .. toctree::
    :maxdepth: 2
