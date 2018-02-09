@@ -30,6 +30,7 @@ env:
 
 python:
   - '3.6'
+
 script:
   - coverage run --source=ganbase setup.py test
   - coverage report
@@ -49,7 +50,7 @@ deploy:
   provider: pypi
   user: innerlee
   password:
-    secure: JYOFIIJ5R3mT0wMFgQJJ7ixVD6vHVTK1XUvo9Gn7V4rXqjA4dNorNMa/VIvuOGK57HKOgETzXNHA6HjdMXtPj9NhjRFhsOuQxguJ7OYQvbyR0mPqpPr7eE+eDA4KQVtmhQgLOH9unGxnmZ/WP4SBHWUTkHTRAGf6ycZK1ao5xWMLjQunydOi/D0kspT8QgNs75k9/uFTsZu7uTcWXKAEUVlIb8w/2UhR0STg/sj4VLNN3NKMvqYKfaccxNvhAENzaxthIIC8F+iZTTX35w9cOGD2TEkC++aAT3zkb7OYn7X0VHkFWD8rXPQB42EXNG9xd66i/XemvUOzqCiLNRzAEMB2surwjg+I1mTvnPa04xLCIzkY4avkdch9+tqg4UATVvZym/w44S4n25PxXJOhgZ4rz94EXrCk2CHJ7p4yzyNdqpaygzenp91AR9SFRlmOb8yZd33MZj/g8XftAnopA29gudAoCgab+TAB1IUibIekOCU6kYhs8UWbg3c/FwfY0zcDQcizG7A5tdptoZco38cotg96NbNYxWfMk25m6MAGI9kIUsEqiU+WIMZbfaKBffczTGObk1v6ULvfFQG0jz6X2eNvyd4+3hGSqx/FR4fQy25EAuJOXNaPWAdb+qdFk8RyWMmZ+xRc4mrZA8v5KDVOCZGDCDz8CdNDGbGDdcE=
+    secure: etTtrXcKU2RMoAk+ueB3V//5w8uLVxr8ZJWwn74V2J2THQdsVVs3QCwo2qLjZuYUPYNWRqZUHIy4at2ZZYLNQl4ZwvY9eA9+aGA+SswNnK1eCTzdoMkKKHvFRj2+gGewdfp8f0NnW0bReli/SJwfqwybbrHRMa3zBu0hYhCgoCeeIdx6kADV89nS9Kxm1q6wgiogahAAe1wK/ujihHiPEmO0U1/zTSR45y6PqErZJH6fDDoJ406ZlDxt8A+HoYanXdxgOkMiT4VfZ82vfX57lHmJ0pK1UA5T2fwUXtUCefT/vdleOiHWrQP9T7WGBQ+1nUwSMnYmyxS5bz7EDwY1Bh8V+JpHXQxkacZpimUmnw5LApNkQ/PE1LLoK6qptxraFtcx40p7y2HLQfGEMYIa8jM/0TDu+M2EsoWjF7zDEAkrs7rbbAr8YIrNwMKJVjH0wW1CQGuHhh4D5v6ACLntQ70himDokqanmYN/TJMBtgfO2ry/TuD+JVDQHg15YLgk3yTYGj4DxcpPKRyu2V37vBtsPEDnxb4MsLwMw4YiM+kK69GqrfRB1bqprMt3t0aXBrTBsZYG1AGf2Fyx/Ir6S8o9rijKGv7ZkN4QKWN7x5uKC/f0ymgkLPMGN45f2xuIAdER7sQrXqKSkLFLQM6pxBbrug86ktpRQbAX5setJ0Y=
   on:
     branch: master
     tags: true
