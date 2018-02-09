@@ -14,12 +14,12 @@ datasets
 
 evaluation
 ----------
-.. automodule:: ganbase.utils
+.. automodule:: ganbase.evaluation
     :members:
 
 visualize
 ----------
-.. automodule:: ganbase.utils
+.. automodule:: ganbase.visualize
     :members:
 
 utils
