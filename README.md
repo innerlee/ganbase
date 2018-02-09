@@ -1,4 +1,4 @@
-# Introduction
+# GAN BASE
 
 [![Documentation](https://img.shields.io/badge/documentation-master-green.svg)](https://innerlee.github.io/ganbase/)
 [![PyPI Version](https://img.shields.io/pypi/v/ganbase.svg)](https://pypi.python.org/pypi/ganbase)
