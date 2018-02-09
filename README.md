@@ -1,6 +1,6 @@
 # Introduction
 
-[![Documentation](https://img.shields.io/badge/documentation-master-green.svg)](http://ganbase.readthedocs.io/en/latest)
+[![Documentation](https://img.shields.io/badge/documentation-master-green.svg)](https://innerlee.github.io/ganbase/)
 [![PyPI Version](https://img.shields.io/pypi/v/ganbase.svg)](https://pypi.python.org/pypi/ganbase)
 [![Python Version](https://img.shields.io/pypi/pyversions/ganbase.svg)]()
 [![Build Status](https://travis-ci.org/innerlee/ganbase.svg?branch=master)](https://travis-ci.org/innerlee/ganbase)
