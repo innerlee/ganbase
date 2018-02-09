@@ -7,8 +7,10 @@ import ganbase as gb
 
 class TestTorch(object):
 
-    def test_torch(self):
+    @staticmethod
+    def test_torch():
         assert torch.__version__ == '0.3.0.post4'
 
-    def test_torchvision(self):
+    @staticmethod
+    def test_torchvision():
         assert torchvision.__version__ == '0.2.0'

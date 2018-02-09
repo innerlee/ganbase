@@ -8,5 +8,6 @@ import ganbase as gb
 
 class TestHello(object):
 
-    def test_hello(self):
+    @staticmethod
+    def test_hello():
         assert 1 == 1
