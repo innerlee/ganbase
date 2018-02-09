@@ -4,45 +4,51 @@ language: python
 
 before_install:
   - sudo apt update
-  - sudo apt install python3.6
-  - which python3
-  - python3 --version
+  - which python
+  - python --version
   - which pip
-  - which pip3
 
 install:
   - pip install -r requirements.txt
   - pip install codecov
+  - pip install recommonmark
+  - pip install sphinx_rtd_theme
+  - pip install http://download.pytorch.org/whl/cpu/torch-0.3.0.post4-cp36-cp36m-linux_x86_64.whl
+  - pip install torchvision
 
 cache:
   pip: true
 
 env:
   global:
-    - COLUMNS=80
-    - secure: "IfDMQfW5lWTU07dRiQ7UL8OtVI18zBECgKkFLnX3j3F63nIWpt1e1KWd3JxUKHJkdFett3gW5oa/z2wRy9BhKKKXHhPRA7XqoClV5e5CZpz3q023hDsfWRvhHTPdFn65ghzspv2dhbzYK7mISS2vH1IZV6zA1BIuG2gOEzXKk+/CYoftVmEz2O98o/yOPkHiVQnEPey233KHVb7PU1xRJLSI4M+HTSXGSjpalMzaOFNghB78iKtgZ4JcmugKFZGfaAEa5pvTgbPzrXAqU04ISlTwDSu1Pq465xRKqqLTsri6F/waaCabmJU6MBRo8d8D0cVo5gIvx51HUcBShvamNXrNtVjQzFGnnwFouRSiMMAZwGXCJa+FJUaR27K2mD8FOgdtDyVWA4KzDStjXqkF65JanQAAifbRI/1/KDi2YmACqJUg+fFfQwxQqikt5Tw9yEywf/wj29LMRNmc1GOSp2aSqCPz5Ge5xq+UgjGdXH+P62pj3RBMr4sYJZVFrjrI8tT8G9qUGlYCJn5qcLEvdFNYMSsmKcnO2yjNZhI/o4uwbk0VC4IJ2i1RNVBccc+5YHwt0uYJAoQ48DDWYua5jdW+hs2etPc8x5JMKLw9VyQt3xFvOBRRKig0cylKdt0q6CJGdbhmnV1Ym6MlfDWe+xOffWohG04Tvi8VxGw24EQ="
+  - COLUMNS=80
+  - secure: IfDMQfW5lWTU07dRiQ7UL8OtVI18zBECgKkFLnX3j3F63nIWpt1e1KWd3JxUKHJkdFett3gW5oa/z2wRy9BhKKKXHhPRA7XqoClV5e5CZpz3q023hDsfWRvhHTPdFn65ghzspv2dhbzYK7mISS2vH1IZV6zA1BIuG2gOEzXKk+/CYoftVmEz2O98o/yOPkHiVQnEPey233KHVb7PU1xRJLSI4M+HTSXGSjpalMzaOFNghB78iKtgZ4JcmugKFZGfaAEa5pvTgbPzrXAqU04ISlTwDSu1Pq465xRKqqLTsri6F/waaCabmJU6MBRo8d8D0cVo5gIvx51HUcBShvamNXrNtVjQzFGnnwFouRSiMMAZwGXCJa+FJUaR27K2mD8FOgdtDyVWA4KzDStjXqkF65JanQAAifbRI/1/KDi2YmACqJUg+fFfQwxQqikt5Tw9yEywf/wj29LMRNmc1GOSp2aSqCPz5Ge5xq+UgjGdXH+P62pj3RBMr4sYJZVFrjrI8tT8G9qUGlYCJn5qcLEvdFNYMSsmKcnO2yjNZhI/o4uwbk0VC4IJ2i1RNVBccc+5YHwt0uYJAoQ48DDWYua5jdW+hs2etPc8x5JMKLw9VyQt3xFvOBRRKig0cylKdt0q6CJGdbhmnV1Ym6MlfDWe+xOffWohG04Tvi8VxGw24EQ=
 
 python:
-  - "3.6"
-
+  - '3.6'
 script:
   - coverage run --source=ganbase setup.py test
+  - coverage report
   - set -e
-  - <command to build docs>
+  - pwd
+  - cd docs
+  - make html
+  - cd ..
   - pip install doctr
-  - doctr deploy --built-docs <path/to/built/html/> <target-directory>
+  - doctr deploy .
 
-after_success: codecov
+after_success:
+  - codecov
 
 deploy:
   provider: pypi
   user: innerlee
   password:
-    secure: empty
+    secure: JYOFIIJ5R3mT0wMFgQJJ7ixVD6vHVTK1XUvo9Gn7V4rXqjA4dNorNMa/VIvuOGK57HKOgETzXNHA6HjdMXtPj9NhjRFhsOuQxguJ7OYQvbyR0mPqpPr7eE+eDA4KQVtmhQgLOH9unGxnmZ/WP4SBHWUTkHTRAGf6ycZK1ao5xWMLjQunydOi/D0kspT8QgNs75k9/uFTsZu7uTcWXKAEUVlIb8w/2UhR0STg/sj4VLNN3NKMvqYKfaccxNvhAENzaxthIIC8F+iZTTX35w9cOGD2TEkC++aAT3zkb7OYn7X0VHkFWD8rXPQB42EXNG9xd66i/XemvUOzqCiLNRzAEMB2surwjg+I1mTvnPa04xLCIzkY4avkdch9+tqg4UATVvZym/w44S4n25PxXJOhgZ4rz94EXrCk2CHJ7p4yzyNdqpaygzenp91AR9SFRlmOb8yZd33MZj/g8XftAnopA29gudAoCgab+TAB1IUibIekOCU6kYhs8UWbg3c/FwfY0zcDQcizG7A5tdptoZco38cotg96NbNYxWfMk25m6MAGI9kIUsEqiU+WIMZbfaKBffczTGObk1v6ULvfFQG0jz6X2eNvyd4+3hGSqx/FR4fQy25EAuJOXNaPWAdb+qdFk8RyWMmZ+xRc4mrZA8v5KDVOCZGDCDz8CdNDGbGDdcE=
   on:
     branch: master
     tags: true
-    python: "3.6"
+    python: '3.6'
   distributions: sdist bdist_wheel
   skip_cleanup: true
   skip_upload_docs: true
