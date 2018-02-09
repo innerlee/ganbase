@@ -41,7 +41,6 @@ script:
   - pip install doctr
   - doctr deploy .
   - pytest
-  - python -c "import torch"
 
 after_success:
   - codecov
