@@ -2,7 +2,6 @@ from time import time
 
 
 class TimerError(Exception):
-
     def __init__(self, message):
         self.message = message
         super(TimerError, self).__init__(message)
@@ -115,5 +114,5 @@ def check_time(timer_id):
     if timer_id not in _g_timers:
         _g_timers[timer_id] = Timer()
         return 0
-    else:
-        return _g_timers[timer_id].since_last_check()
+
+    return _g_timers[timer_id].since_last_check()
