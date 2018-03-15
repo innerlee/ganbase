@@ -15,15 +15,15 @@ def loaddata(dataset,
              droplast=False):
     """
     load dataset
-    return dataset, dataloader
+
+    returns dataset, dataloader
+
+    args:
     bs: number or list / tuple
     """
-    if dataroot is None:
-        dataroot = f'/mnt/SSD/datasets/{dataset}'
-
     if dataset in ['imagenet', 'folder', 'lfw', 'lfwcrop']:
         # folder dataset
-        data = ImageFolder(
+        dst = ImageFolder(
             root=dataroot,
             transform=transforms.Compose([
                 transforms.Resize(imageSize),
@@ -31,8 +31,8 @@ def loaddata(dataset,
                 transforms.ToTensor(),
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]))
-    elif dataset == 'celebA':
-        data = ImageFolder(
+    elif dataset == 'celeba-crop':
+        dst = ImageFolder(
             root=dataroot,
             transform=transforms.Compose([
                 CropBox(25, 50, 128, 128),
@@ -40,8 +40,17 @@ def loaddata(dataset,
                 transforms.ToTensor(),
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]))
+    elif dataset == 'celeba':
+        dst = ImageFolder(
+            root=dataroot,
+            transform=transforms.Compose([
+                transforms.Resize(imageSize),
+                transforms.CenterCrop(imageSize),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            ]))
     elif dataset == 'lsun':
-        data = LSUN(
+        dst = LSUN(
             db_path=dataroot,
             classes=['bedroom_train'],
             transform=transforms.Compose([
@@ -51,7 +60,7 @@ def loaddata(dataset,
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]))
     elif dataset == 'cifar10':
-        data = CIFAR10(
+        dst = CIFAR10(
             root=dataroot,
             download=True,
             transform=transforms.Compose([
@@ -60,7 +69,7 @@ def loaddata(dataset,
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]))
     elif dataset == 'mnist':
-        data = MNIST(
+        dst = MNIST(
             root=dataroot,
             download=True,
             transform=transforms.Compose([
@@ -69,7 +78,7 @@ def loaddata(dataset,
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]))
 
-    assert data
+    assert dst
 
     bs = [bs] if isinstance(bs, int) else list(bs)
 
@@ -79,19 +88,19 @@ def loaddata(dataset,
             dataloader.append(
                 LoopLoader(
                     torch.utils.data.DataLoader(
-                        data,
+                        dst,
                         batch_size=b,
                         pin_memory=pinMemory,
                         shuffle=True,
                         num_workers=int(nWorkers),
                         drop_last=droplast)))
-        nSample = len(data)
+        nSample = len(dst)
     else:
         for b in bs:
             dataloader.append(
                 LoopLoader(
                     torch.utils.data.DataLoader(
-                        data,
+                        dst,
                         batch_size=b,
                         pin_memory=pinMemory,
                         shuffle=False,
@@ -103,4 +112,4 @@ def loaddata(dataset,
     if len(dataloader) == 1:
         dataloader = dataloader[0]
 
-    return data, dataloader, nSample
+    return dst, dataloader

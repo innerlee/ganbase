@@ -33,78 +33,80 @@ class SphereLatent(Latent):
 
         returns np array
         """
-        return prep.normalize(np.random.randn(bs, self.embed_out_dim)) * self.R
+        return torch.from_numpy(
+            (prep.normalize(np.random.randn(bs, self.embed_out_dim)) *
+             self.R).astype('float32'))
 
-    def embed(self, z):
-        """
-        from R^{n+1} to S^n in R^{n+1}
+    # def embed(self, z):
+    #     """
+    #     from R^{n+1} to S^n in R^{n+1}
 
-        z: a variable
-        returns a variable
-        """
-        assert isinstance(z, Variable)
-        assert z.size(1) == self.embed_in_dim
+    #     z: a variable
+    #     returns a variable
+    #     """
+    #     assert isinstance(z, Variable)
+    #     assert z.size(1) == self.embed_in_dim
 
-        if self.confine == 'soft':
-            z_norm = z.norm(2, dim=1, keepdim=True) + self.eps
-        elif self.confine == 'hard':
-            z_norm = Variable(z.data.norm(2, dim=1, keepdim=True) + self.eps)
-        elif self.confine == 'regularize':
-            z_norm = z.norm(2, dim=1, keepdim=True) + self.eps
-            z_norm_norm = z_norm / self.R
-            assert z_norm_norm.size() == (z.size(0), 1)
-            self.reg_loss = z_norm_norm - torch.log(z_norm_norm)
-            return z
-        else:
-            raise ValueError('latent confine not supported')
+    #     if self.confine == 'soft':
+    #         z_norm = z.norm(2, dim=1, keepdim=True) + self.eps
+    #     elif self.confine == 'hard':
+    #         z_norm = Variable(z.data.norm(2, dim=1, keepdim=True) + self.eps)
+    #     elif self.confine == 'regularize':
+    #         z_norm = z.norm(2, dim=1, keepdim=True) + self.eps
+    #         z_norm_norm = z_norm / self.R
+    #         assert z_norm_norm.size() == (z.size(0), 1)
+    #         self.reg_loss = z_norm_norm - torch.log(z_norm_norm)
+    #         return z
+    #     else:
+    #         raise ValueError('latent confine not supported')
 
-        emb = z / z_norm * self.R
-        assert torch.abs(emb[0, :].norm() / self.R - 1).data[0] < 1e-3
+    #     emb = z / z_norm * self.R
+    #     assert torch.abs(emb[0, :].norm() / self.R - 1).data[0] < 1e-3
 
-        return emb
+    #     return emb
 
-    def neighbor(self, z, sigma, multiple=1):
-        """
-        sample one embeded neighbor given points (variable) before embed
+    # def neighbor(self, z, sigma, multiple=1):
+    #     """
+    #     sample one embeded neighbor given points (variable) before embed
 
-        z: a variable
-        multiple: how many neighbors for each point
-        returns an embeded variable
-        """
-        assert isinstance(z, Variable)
-        z = z.repeat(multiple, 1)
-        z_norm = Variable(z.data.norm(2, dim=1, keepdim=True) + self.eps)
-        unitz = z / z_norm
-        noise = Variable(sigma * torch.randn(z.size())).cuda(async=True)
-        vert = noise - (unitz * noise).sum(dim=1, keepdim=True) * unitz
-        z = unitz * self.R + vert
-        z_norm = Variable(z.data.norm(2, dim=1, keepdim=True) + self.eps)
-        emb = z / z_norm * self.R
-        assert torch.abs(emb[0, :].norm() / self.R - 1).data[0] < 1e-5
+    #     z: a variable
+    #     multiple: how many neighbors for each point
+    #     returns an embeded variable
+    #     """
+    #     assert isinstance(z, Variable)
+    #     z = z.repeat(multiple, 1)
+    #     z_norm = Variable(z.data.norm(2, dim=1, keepdim=True) + self.eps)
+    #     unitz = z / z_norm
+    #     noise = Variable(sigma * torch.randn(z.size())).cuda(async=True)
+    #     vert = noise - (unitz * noise).sum(dim=1, keepdim=True) * unitz
+    #     z = unitz * self.R + vert
+    #     z_norm = Variable(z.data.norm(2, dim=1, keepdim=True) + self.eps)
+    #     emb = z / z_norm * self.R
+    #     assert torch.abs(emb[0, :].norm() / self.R - 1).data[0] < 1e-5
 
-        return emb
+    #     return emb
 
-    def embed_draw(self, z):
-        """
-        from R^{n+1} to S^n in R^{n+1}
+    # def embed_draw(self, z):
+    #     """
+    #     from R^{n+1} to S^n in R^{n+1}
 
-        z: a variable
-        returns a tensor
-        """
-        assert z.size(1) == self.embed_in_dim
+    #     z: a variable
+    #     returns a tensor
+    #     """
+    #     assert z.size(1) == self.embed_in_dim
 
-        z_norm = z.data.norm(2, dim=1, keepdim=True) + self.eps
+    #     z_norm = z.data.norm(2, dim=1, keepdim=True) + self.eps
 
-        emb = z.data / z_norm * self.R
-        assert np.abs(emb[0, :].norm() / self.R - 1) < 1e-5
+    #     emb = z.data / z_norm * self.R
+    #     assert np.abs(emb[0, :].norm() / self.R - 1) < 1e-5
 
-        return emb
+    #     return emb
 
-    def embed_to_draw(self, z):
-        """
-        embeded points to drawable points
+    # def embed_to_draw(self, z):
+    #     """
+    #     embeded points to drawable points
 
-        input: variable
-        output: tensor
-        """
-        return z.data
+    #     input: variable
+    #     output: tensor
+    #     """
+    #     return z.data

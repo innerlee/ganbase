@@ -39,7 +39,8 @@ class TorusLatent(Latent):
         """
         ang = np.random.uniform(-np.pi, np.pi, (bs, self.intrinsic_dim))
 
-        return np.concatenate((np.cos(ang), np.sin(ang)), axis=1)
+        return torch.from_numpy((np.concatenate(
+            (np.cos(ang), np.sin(ang)), axis=1)).astype('float32'))
 
     def embed(self, z):
         """

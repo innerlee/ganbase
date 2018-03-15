@@ -41,11 +41,11 @@ class DCGAN_D(nn.Module):
     """
 
     def __init__(self,
-                 isize,
-                 nc,
-                 ndf,
-                 n_extra_layers=0,
-                 n_extra_conv=0,
+                 imsize,
+                 imchannel,
+                 netwidth,
+                 extralayers=0,
+                 extraconv=0,
                  activation='leakyrelu',
                  normalize='none',
                  outactivation='none',
@@ -53,11 +53,11 @@ class DCGAN_D(nn.Module):
                  ngpu=1):
         super().__init__()
         #region yapf: disable
-        self.isize          = isize
-        self.nc             = nc
-        self.ndf            = ndf
-        self.n_extra_layers = n_extra_layers
-        self.n_extra_conv   = n_extra_conv
+        self.imsize         = imsize
+        self.imchannel      = imchannel
+        self.netwidth       = netwidth
+        self.extralayers    = extralayers
+        self.extraconv      = extraconv
         self.activation     = activation
         self.normalize      = normalize
         self.outactivation  = outactivation
@@ -65,20 +65,21 @@ class DCGAN_D(nn.Module):
         self.bias           = True if normalize == 'none' else False
         self.ngpu           = ngpu
         #region yapf: enable
-        assert isize % 16 == 0, "isize has to be a multiple of 16"
+        assert imsize % 16 == 0, "imsize has to be a multiple of 16"
 
         main = nn.Sequential()
-        # input is nc x isize x isize
-        main.add_module(f'initial.conv.{nc}-{ndf}',
-                        nn.Conv2d(nc, ndf, 4, 2, 1, bias=self.bias))
+        # input is bs x imchannel x imsize x imsize
+        main.add_module(f'initial.conv.{imchannel}-{netwidth}',
+                        nn.Conv2d(
+                            imchannel, netwidth, 4, 2, 1, bias=self.bias))
 
-        main.add_module(f'initial.{ndf}.{activation}',
+        main.add_module(f'initial.{netwidth}.{activation}',
                         get_activation(activation))
 
-        csize, cndf = isize / 2, ndf
+        csize, cndf = imsize / 2, netwidth
 
         # Extra layers
-        for t in range(n_extra_layers):
+        for t in range(extralayers):
             main.add_module(f'extra{t}.{cndf}.conv',
                             nn.Conv2d(cndf, cndf, 3, 1, 1, bias=self.bias))
 
@@ -104,7 +105,7 @@ class DCGAN_D(nn.Module):
                             get_activation(activation))
 
             # extra conv
-            for t in range(n_extra_conv):
+            for t in range(extraconv):
                 main.add_module(f'pyramid.{out_feat}.extraconv{t}.conv',
                                 nn.Conv2d(
                                     out_feat,
@@ -154,37 +155,37 @@ class DCGAN_G(nn.Module):
     """
 
     def __init__(self,
-                 isize,
-                 nc,
+                 imsize,
+                 imchannel,
                  nz,
-                 ngf,
-                 n_extra_layers=0,
-                 n_extra_conv=0,
+                 width,
+                 extralayers=0,
+                 extraconv=0,
                  activation='leakyrelu',
                  normalize='batch',
                  ngpu=1):
         super().__init__()
         #region yapf: disable
-        self.isize          = isize
-        self.nc             = nc
+        self.imsize         = imsize
+        self.imchannel      = imchannel
         self.nz             = nz
-        self.ngf            = ngf
-        self.n_extra_layers = n_extra_layers
-        self.n_extra_conv   = n_extra_conv
+        self.width          = width
+        self.extralayers    = extralayers
+        self.extraconv      = extraconv
         self.activation     = activation
         self.normalize      = normalize
         self.bias           = True if normalize == 'none' else False
         self.ngpu           = ngpu
         #region yapf: enable
-        assert isize % 16 == 0, "isize has to be a multiple of 16"
+        assert imsize % 16 == 0, "imsize has to be a multiple of 16"
 
-        cngf, tisize = ngf // 2, 4
-        while tisize != isize:
+        cngf, tisize = width // 2, 4
+        while tisize != imsize:
             cngf = cngf * 2
             tisize = tisize * 2
 
         main = nn.Sequential()
-        # input is Z (nc x nz x 1 x 1), going into a convolution
+        # input is Z (bs x nz x 1 x 1), going into a convolution
         main.add_module(f'initial.{nz}-{cngf}.convt',
                         nn.ConvTranspose2d(nz, cngf, 4, 1, 0, bias=self.bias))
 
@@ -196,7 +197,7 @@ class DCGAN_G(nn.Module):
                         get_activation(activation))
 
         csize, cngf = 4, cngf
-        while csize < isize // 2:
+        while csize < imsize // 2:
             main.add_module(f'pyramid.{cngf}-{cngf//2}.convt',
                             nn.ConvTranspose2d(
                                 cngf, cngf // 2, 4, 2, 1, bias=self.bias))
@@ -209,7 +210,7 @@ class DCGAN_G(nn.Module):
                             get_activation(activation))
 
             # extra conv
-            for t in range(n_extra_conv):
+            for t in range(extraconv):
                 main.add_module(f'pyramid.{cngf//2}.extraconv{t}.conv',
                                 nn.Conv2d(
                                     cngf // 2,
@@ -231,7 +232,7 @@ class DCGAN_G(nn.Module):
             csize = csize * 2
 
         # Extra layers
-        for t in range(n_extra_layers):
+        for t in range(extralayers):
             main.add_module(f'extra{t}.{cngf}.conv',
                             nn.Conv2d(cngf, cngf, 3, 1, 1, bias=self.bias))
 
@@ -242,9 +243,10 @@ class DCGAN_G(nn.Module):
             main.add_module(f'extra{t}.{cngf}.{activation}',
                             get_activation(activation))
 
-        main.add_module(f'final.{cngf}-{nc}.convt',
-                        nn.ConvTranspose2d(cngf, nc, 4, 2, 1, bias=self.bias))
-        main.add_module(f'final.{nc}.tanh'.format(), nn.Tanh())
+        main.add_module(f'final.{cngf}-{imchannel}.convt',
+                        nn.ConvTranspose2d(
+                            cngf, imchannel, 4, 2, 1, bias=self.bias))
+        main.add_module(f'final.{imchannel}.tanh'.format(), nn.Tanh())
         self.main = main
 
     def forward(self, input):
