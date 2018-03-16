@@ -123,7 +123,7 @@ class DOWNSAMPLE_D(nn.Module):
 
         # state size. bs x outchannel x 4 x 4
         main.add_module(f'final.{inchannel}-{outdim}.conv',
-                        nn.Conv2d(inchannel, outdim, 4, 1, 0, bias=self.bias))
+                        nn.Conv2d(inchannel, outdim, 4, 1, 0, bias=True))
 
         if outactivation != 'none':
             main.add_module(f'final.{outchannel}-{outdim}.{outactivation}',
@@ -229,9 +229,12 @@ class UPSAMPLE_G(nn.Module):
 
             insize = insize * 2
             inchannel //= 2
-            outchannel = 3 if insize * 2 == imsize else inchannel // 2
+            outchannel = inchannel // 2
 
         assert insize == imsize
+
+        main.add_module(f'pyramid.{inchannel}-{imchannel}.conv',
+                        nn.Conv2d(inchannel, imchannel, 3, 1, 1, bias=True))
 
         main.add_module(f'final.{imchannel}.tanh'.format(), nn.Tanh())
         self.main = main
