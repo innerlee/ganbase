@@ -35,6 +35,6 @@ dataloader = torch.utils.data.DataLoader(imgs, batch_size=50000)
 print("Calculating Inception Score...")
 
 for i, batch in enumerate(dataloader, 0):
-    result = gb.inception_score(batch, cuda=True, batch_size=32, splits=10)
+    result = gb.inception_score(batch, batch_size=32, splits=10)
     print("Inception Score: {}".format(result[0]))
     print("Standard Deviation: {}".format(result[1]))

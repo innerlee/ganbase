@@ -6,10 +6,9 @@ from torch.nn import functional as F
 from torchvision.models.inception import inception_v3
 
 
-def inception_score(imgs, cuda=True, batch_size=10, splits=10):
+def inception_score(imgs, batch_size=10, splits=10):
     """Computes the inception score of the generated images imgs
     imgs -- List of tensors in (N,C,H,W)
-    cuda -- whether or not to run on GPU
     batch_size -- batch size for feeding into Inception v3
     splits -- number of splits
     """
@@ -19,19 +18,7 @@ def inception_score(imgs, cuda=True, batch_size=10, splits=10):
     assert N > batch_size
 
     # load inception model
-    if cuda:
-        if not torch.cuda.is_available():
-            print(
-                "WARNING: You do not have a CUDA device, so use CPU to compute."
-            )
-            dtype = torch.FloatTensor
-        dtype = torch.cuda.FloatTensor
-    else:
-        if torch.cuda.is_available():
-            print(
-                "WARNING: You have a CUDA device, so you should probably set cuda=True"
-            )
-        dtype = torch.FloatTensor
+    dtype = torch.cuda.FloatTensor
 
     inception_model = inception_v3(
         pretrained=True, transform_input=False).type(dtype)
