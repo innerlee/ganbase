@@ -32,7 +32,7 @@ import ganbase                  as gb # pylint: disable=C0413
 parser = argparse.ArgumentParser()
 
 #region Args for Data
-parser.add_argument('--dataset',        required=True, help='cifar10 | lsun | imagenet | folder | lfw | lfwcrop | celebA | mnist')
+parser.add_argument('--dataset',        required=True, help='cifar10 | lsun | imagenet | folder | lfw | lfwcrop | celeba | mnist')
 parser.add_argument('--dataroot',       default=None, help='path to dataset')
 parser.add_argument('--nSample',        type=int, default=0, help='how many training samples')
 parser.add_argument('--imageSize',      type=int, default=64, help='the height / width of the input image to network')
@@ -116,10 +116,10 @@ bs        = opt.bs
 n_row     = opt.nRow
 n_col     = opt.nCol
 valbs     = n_row * n_col
-z_draw_np = latent.sample(valbs).astype('float32')
-z_draw    = torch.from_numpy(z_draw_np).cuda(async=True)
+z_draw_np = latent.sample(valbs).float()
+z_draw    = torch.as_tensor(z_draw_np).cuda(async=True)
 
-dataset, loader, opt.nSample = gb.loaddata(
+dataset, loader = gb.loaddata(
     opt.dataset, opt.dataroot, opt.imageSize, opt.bs, opt.nSample, opt.nWorkers, droplast=True)
 print(f'{opt.nSample} samples')
 
@@ -199,9 +199,11 @@ for it in range(1, opt.nIter - 1):
 
         x_cpu, _ = next(d_iter)
         x_real = Variable(x_cpu).cuda(async=True)
-        z_np = latent.sample(opt.bs).astype('float32')
-        z = Variable(torch.from_numpy(z_np), volatile=True).cuda(async=True)
-        x_fake = Variable(netG(z).data)
+        z_np = latent.sample(opt.bs).float()
+        with torch.no_grad():
+            z = torch.as_tensor(z_np).cuda(async=True)
+            x_fake = netG(z)
+        x_fake = Variable(x_fake.data)
 
         loss_fake = loss(netD(x_fake), Variable(zeros_label))
         loss_real = loss(netD(x_real), Variable(ones_label))
@@ -209,8 +211,8 @@ for it in range(1, opt.nIter - 1):
         loss_fake.backward()
         loss_real.backward()
 
-        prob_D_real += np.exp(-loss_real.data[0])
-        prob_D_fake += 1 - np.exp(-loss_fake.data[0])
+        prob_D_real += np.exp(-loss_real.data.item())
+        prob_D_fake += 1 - np.exp(-loss_fake.data.item())
 
         optimizerD.step()
     #endregion
@@ -227,13 +229,13 @@ for it in range(1, opt.nIter - 1):
     for r in range(opt.repeatG):
         netG.zero_grad()
 
-        z_np = latent.sample(opt.bs).astype('float32')
-        z = Variable(torch.from_numpy(z_np)).cuda(async=True)
+        z_np = latent.sample(opt.bs).float()
+        z = torch.as_tensor(z_np).cuda(async=True)
 
         loss_gen = loss(netD(netG(z)), Variable(ones_label))
         loss_gen.backward()
 
-        prob_G += np.exp(-loss_real.data[0])
+        prob_G += np.exp(-loss_real.data.item())
 
         optimizerG.step()
     #endregion
@@ -258,8 +260,8 @@ for it in range(1, opt.nIter - 1):
             nrow=n_row)
 
         # 2. random fake
-        z_rand_np = latent.sample(valbs).astype('float32')
-        z_rand = torch.from_numpy(z_rand_np).cuda(async=True)
+        z_rand_np = latent.sample(valbs).float()
+        z_rand = torch.as_tensor(z_rand_np).cuda(async=True)
         fake = netG(Variable(z_rand))
         vutils.save_image(
             fake.data.mul(0.5).add(0.5),

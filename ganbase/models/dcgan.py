@@ -69,44 +69,44 @@ class DCGAN_D(nn.Module):
 
         main = nn.Sequential()
         # input is bs x imchannel x imsize x imsize
-        main.add_module(f'initial.conv.{imchannel}-{netwidth}',
+        main.add_module(f'initial_conv_{imchannel}-{netwidth}',
                         nn.Conv2d(
                             imchannel, netwidth, 4, 2, 1, bias=self.bias))
 
-        main.add_module(f'initial.{netwidth}.{activation}',
+        main.add_module(f'initial_{netwidth}_{activation}',
                         get_activation(activation))
 
         csize, cndf = imsize / 2, netwidth
 
         # Extra layers
         for t in range(extralayers):
-            main.add_module(f'extra{t}.{cndf}.conv',
+            main.add_module(f'extra{t}_{cndf}_conv',
                             nn.Conv2d(cndf, cndf, 3, 1, 1, bias=self.bias))
 
             if normalize != 'none':
-                main.add_module(f'extra{t}.{cndf}.{normalize}norm',
+                main.add_module(f'extra{t}_{cndf}_{normalize}norm',
                                 get_normalize(normalize, cndf))
 
-            main.add_module(f'extra{t}.{cndf}.{activation}',
+            main.add_module(f'extra{t}_{cndf}_{activation}',
                             get_activation(activation))
 
         while csize > 4:
             in_feat = cndf
             out_feat = cndf * 2
-            main.add_module(f'pyramid.{in_feat}-{out_feat}.conv',
+            main.add_module(f'pyramid_{in_feat}-{out_feat}_conv',
                             nn.Conv2d(
                                 in_feat, out_feat, 4, 2, 1, bias=self.bias))
 
             if normalize != 'none':
-                main.add_module(f'pyramid.{out_feat}.{normalize}norm',
+                main.add_module(f'pyramid_{out_feat}_{normalize}norm',
                                 get_normalize(normalize, out_feat))
 
-            main.add_module(f'pyramid.{out_feat}.{activation}',
+            main.add_module(f'pyramid_{out_feat}_{activation}',
                             get_activation(activation))
 
             # extra conv
             for t in range(extraconv):
-                main.add_module(f'pyramid.{out_feat}.extraconv{t}.conv',
+                main.add_module(f'pyramid_{out_feat}_extraconv{t}_conv',
                                 nn.Conv2d(
                                     out_feat,
                                     out_feat,
@@ -117,22 +117,22 @@ class DCGAN_D(nn.Module):
 
                 if normalize != 'none':
                     main.add_module(
-                        f'pyramid.{out_feat}.extraconv{t}.{normalize}norm',
+                        f'pyramid_{out_feat}_extraconv{t}_{normalize}norm',
                         get_normalize(normalize, out_feat))
 
                 main.add_module(
-                    f'pyramid.{out_feat}.extraconv{t}.{activation}',
+                    f'pyramid_{out_feat}_extraconv{t}_{activation}',
                     get_activation(activation))
 
             cndf = cndf * 2
             csize = csize / 2
 
         # state size. K x 4 x 4
-        main.add_module(f'final.{cndf}-{outdim}.conv',
+        main.add_module(f'final_{cndf}-{outdim}_conv',
                         nn.Conv2d(cndf, outdim, 4, 1, 0, bias=self.bias))
 
         if outactivation != 'none':
-            main.add_module(f'final.{cndf}-{outdim}.{outactivation}',
+            main.add_module(f'final_{cndf}-{outdim}_{outactivation}',
                             get_activation(outactivation))
         self.main = main
 
@@ -186,32 +186,32 @@ class DCGAN_G(nn.Module):
 
         main = nn.Sequential()
         # input is Z (bs x nz x 1 x 1), going into a convolution
-        main.add_module(f'initial.{nz}-{cngf}.convt',
+        main.add_module(f'initial_{nz}-{cngf}_convt',
                         nn.ConvTranspose2d(nz, cngf, 4, 1, 0, bias=self.bias))
 
         if normalize != 'none':
-            main.add_module(f'initial.{cngf}.{normalize}norm',
+            main.add_module(f'initial_{cngf}_{normalize}norm',
                             get_normalize(normalize, cngf))
 
-        main.add_module(f'initial.{cngf}.{activation}',
+        main.add_module(f'initial_{cngf}_{activation}',
                         get_activation(activation))
 
         csize, cngf = 4, cngf
         while csize < imsize // 2:
-            main.add_module(f'pyramid.{cngf}-{cngf//2}.convt',
+            main.add_module(f'pyramid_{cngf}-{cngf//2}_convt',
                             nn.ConvTranspose2d(
                                 cngf, cngf // 2, 4, 2, 1, bias=self.bias))
 
             if normalize != 'none':
-                main.add_module(f'pyramid.{cngf//2}.{normalize}norm',
+                main.add_module(f'pyramid_{cngf//2}_{normalize}norm',
                                 get_normalize(normalize, cngf // 2))
 
-            main.add_module(f'pyramid.{cngf//2}.{activation}',
+            main.add_module(f'pyramid_{cngf//2}_{activation}',
                             get_activation(activation))
 
             # extra conv
             for t in range(extraconv):
-                main.add_module(f'pyramid.{cngf//2}.extraconv{t}.conv',
+                main.add_module(f'pyramid_{cngf//2}_extraconv{t}_conv',
                                 nn.Conv2d(
                                     cngf // 2,
                                     cngf // 2,
@@ -222,10 +222,10 @@ class DCGAN_G(nn.Module):
 
                 if normalize != 'none':
                     main.add_module(
-                        f'pyramid.{cngf//2}.extraconv{t}.{normalize}norm',
+                        f'pyramid_{cngf//2}_extraconv{t}_{normalize}norm',
                         get_normalize(normalize, cngf // 2))
 
-                main.add_module(f'pyramid.{cngf//2}.extraconv{t}.{activation}',
+                main.add_module(f'pyramid_{cngf//2}_extraconv{t}_{activation}',
                                 get_activation(activation))
 
             cngf = cngf // 2
@@ -233,20 +233,20 @@ class DCGAN_G(nn.Module):
 
         # Extra layers
         for t in range(extralayers):
-            main.add_module(f'extra{t}.{cngf}.conv',
+            main.add_module(f'extra{t}_{cngf}_conv',
                             nn.Conv2d(cngf, cngf, 3, 1, 1, bias=self.bias))
 
             if normalize != 'none':
-                main.add_module(f'extra{t}.{cngf}.{normalize}norm',
+                main.add_module(f'extra{t}_{cngf}_{normalize}norm',
                                 get_normalize(normalize, cngf))
 
-            main.add_module(f'extra{t}.{cngf}.{activation}',
+            main.add_module(f'extra{t}_{cngf}_{activation}',
                             get_activation(activation))
 
-        main.add_module(f'final.{cngf}-{imchannel}.convt',
+        main.add_module(f'final_{cngf}-{imchannel}_convt',
                         nn.ConvTranspose2d(
                             cngf, imchannel, 4, 2, 1, bias=self.bias))
-        main.add_module(f'final.{imchannel}.tanh'.format(), nn.Tanh())
+        main.add_module(f'final_{imchannel}_tanh'.format(), nn.Tanh())
         self.main = main
 
     def forward(self, input):

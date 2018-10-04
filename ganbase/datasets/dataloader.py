@@ -21,6 +21,7 @@ def loaddata(dataset,
     args:
     bs: number or list / tuple
     """
+    dst = None
     if dataset in ['imagenet', 'folder', 'lfw', 'lfwcrop']:
         # folder dataset
         dst = ImageFolder(

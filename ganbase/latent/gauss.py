@@ -10,10 +10,10 @@ class GaussLatent(Latent):
     gauss random space
     """
 
-    def __init__(self, dim, bs):
+    def __init__(self, dim):
         super().__init__()
         self.dim = dim
-        self.bs = bs
+        #self.bs = bs
 
     def sample(self, n):
         """
