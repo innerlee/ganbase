@@ -120,7 +120,7 @@ n_row     = opt.nRow
 n_col     = opt.nCol
 valbs     = n_row * n_col
 z_draw_np = latent.sample(valbs).float()
-z_draw    = torch.as_tensor(z_draw_np).cuda(async=True)
+z_draw    = z_draw_np.cuda(non_blocking=True)
 
 dataset, loader = gb.loaddata(
     opt.dataset, opt.dataroot, opt.imageSize, opt.bs, opt.nSample, opt.nWorkers, droplast=True)
@@ -198,15 +198,15 @@ for it in range(1, opt.nIter - 1):
         netD.zero_grad()
 
         x_cpu, _ = next(d_iter)
-        x_real = Variable(x_cpu).cuda(async=True)
+        x_real = Variable(x_cpu).cuda(non_blocking=True)
         z_np = latent.sample(opt.bs).float()
         with torch.no_grad():
-            z = torch.as_tensor(z_np).cuda(async=True)
+            z = z_np.cuda(non_blocking=True)
             x_fake = netG(z)
         x_fake = Variable(x_fake.data)
 
-        loss_fake = torch.mean(x_real)
-        loss_real = -torch.mean(x_fake)
+        loss_fake = torch.mean(netD(x_real))
+        loss_real = -torch.mean(netD(x_fake))
 
         batch_size = x_real.size()[0]
         alpha = torch.rand(batch_size, 1, 1, 1)
@@ -242,7 +242,7 @@ for it in range(1, opt.nIter - 1):
         netG.zero_grad()
 
         z_np = latent.sample(opt.bs).float()
-        z = torch.as_tensor(z_np).cuda(async=True)
+        z = z_np.cuda(non_blocking=True)
 
         loss_gen = -torch.mean(netD(netG(z)))
         loss_gen.backward()
@@ -273,7 +273,7 @@ for it in range(1, opt.nIter - 1):
 
         # 2. random fake
         z_rand_np = latent.sample(valbs).float()
-        z_rand = torch.as_tensor(z_rand_np).cuda(async=True)
+        z_rand = z_rand_np.cuda(non_blocking=True)
         fake = netG(Variable(z_rand))
         vutils.save_image(
             fake.data.mul(0.5).add(0.5),

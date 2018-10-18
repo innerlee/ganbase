@@ -66,7 +66,7 @@ class TorusLatent(Latent):
         """
         assert isinstance(z, Variable)
         z = z.repeat(multiple, 1)
-        noise = Variable(sigma * torch.randn(z.size())).cuda(async=True)
+        noise = Variable(sigma * torch.randn(z.size())).cuda(non_blocking=True)
         z = z + noise
         emb = torch.cat((torch.cos(z), torch.sin(z)), dim=1)
         assert torch.abs(emb[0, :].norm() / self.R - 1).data[0] < 1e-5
