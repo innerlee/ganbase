@@ -69,7 +69,7 @@ parser.add_argument('--beta1G',         type=float, default=0.5, help='beta1 for
 parser.add_argument('--beta1D',         type=float, default=0.5, help='beta1 for adam, D. default=0.5')
 parser.add_argument('--momentG',        type=float, default=0.9, help='moment for sgd, G. default=0.5')
 parser.add_argument('--momentD',        type=float, default=0.9, help='moment for sgd, D. default=0.5')
-parser.add_argument('--lambdaGP',       type=float, default=0.05, help='weight for gradient penalty, default=0.05')
+parser.add_argument('--lambdaGP',       type=float, default=10, help='weight for gradient penalty, default=10')
 
 #endregion
 
