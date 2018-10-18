@@ -59,16 +59,16 @@ parser.add_argument('--normalizeD',     default='instance', help='batch | instan
 #region Args for Training
 parser.add_argument('--gpu',            type=int, default=0, help='which GPU to use, default to 0')
 parser.add_argument('--nIter',          type=int, default=50000, help='number of iteration to train for')
-parser.add_argument('--repeatD',        type=int, default=1, help='repeat D per iteration')
+parser.add_argument('--repeatD',        type=int, default=5, help='repeat D per iteration')
 parser.add_argument('--repeatG',        type=int, default=1, help='repeat G per iteration')
 parser.add_argument('--optimizerG',     default='adam', help='adam | rmsprop | sgd, optimizer for G')
 parser.add_argument('--optimizerD',     default='adam', help='adam | rmsprop | sgd, optimizer for D')
 parser.add_argument('--lrG',            type=float, default=0.0001, help='learning rate for Generator, default=0.0001')
 parser.add_argument('--lrD',            type=float, default=0.0001, help='learning rate for Distance, default=0.0001')
-parser.add_argument('--beta1G',         type=float, default=0.5, help='beta1 for adam, G. default=0.5')
-parser.add_argument('--beta1D',         type=float, default=0.5, help='beta1 for adam, D. default=0.5')
-parser.add_argument('--momentG',        type=float, default=0.9, help='moment for sgd, G. default=0.5')
-parser.add_argument('--momentD',        type=float, default=0.9, help='moment for sgd, D. default=0.5')
+parser.add_argument('--beta1G',         type=float, default=0, help='beta1 for adam, G. default=0')
+parser.add_argument('--beta1D',         type=float, default=0, help='beta1 for adam, D. default=0')
+parser.add_argument('--momentG',        type=float, default=0.9, help='moment for sgd, G. default=0.9')
+parser.add_argument('--momentD',        type=float, default=0.9, help='moment for sgd, D. default=0.9')
 parser.add_argument('--lambdaGP',       type=float, default=10, help='weight for gradient penalty, default=10')
 
 #endregion
