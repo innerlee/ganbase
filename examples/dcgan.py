@@ -90,7 +90,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = str(opt.gpu)
 cudnn.benchmark = True
 
 if opt.workdir is None:
-    opt.workdir = f'samples/exp73_{datetime.now()}'.replace(' ', '_')
+    opt.workdir = f'samples/dcgan/exp73_{datetime.now()}'.replace(' ', '_')
 
 os.system(f'mkdir -p {opt.workdir}/png')
 sys.stdout = gb.Logger(opt.workdir)
