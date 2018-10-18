@@ -119,7 +119,7 @@ valbs     = n_row * n_col
 z_draw_np = latent.sample(valbs).float()
 z_draw    = z_draw_np.cuda(non_blocking=True)
 
-dataset, loader = gb.loaddata(
+dataset, loader, opt.nSample = gb.loaddata(
     opt.dataset, opt.dataroot, opt.imageSize, opt.bs, opt.nSample, opt.nWorkers, droplast=True)
 print(f'{opt.nSample} samples')
 

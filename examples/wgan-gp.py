@@ -122,7 +122,7 @@ valbs     = n_row * n_col
 z_draw_np = latent.sample(valbs).float()
 z_draw    = z_draw_np.cuda(non_blocking=True)
 
-dataset, loader = gb.loaddata(
+dataset, loader, opt.nSample = gb.loaddata(
     opt.dataset, opt.dataroot, opt.imageSize, opt.bs, opt.nSample, opt.nWorkers, droplast=True)
 print(f'{opt.nSample} samples')
 
@@ -209,9 +209,10 @@ for it in range(1, opt.nIter - 1):
         loss_real = -torch.mean(netD(x_fake))
 
         batch_size = x_real.size()[0]
-        alpha = torch.rand(batch_size, 1, 1, 1)
+        alpha = torch.rand(batch_size, 1, 1, 1).cuda()
         x_hat = alpha * x_real.data + (1.0 - alpha) * x_fake.data
         x_hat.requires_grad = True
+        x_hat = x_hat.cuda()
         pred_hat = netD(x_hat)
 
         gradients = grad(outputs=pred_hat, inputs=x_hat, grad_outputs=torch.ones(pred_hat.size()).cuda(),
@@ -221,7 +222,7 @@ for it in range(1, opt.nIter - 1):
 
         loss_fake.backward()
         loss_real.backward()
-        loss_gp.backward()
+        loss_gp.backward(retain_graph=True)
 
         prob_D_real += np.exp(-loss_real.data.item())
         prob_D_fake += 1 - np.exp(-loss_fake.data.item())
