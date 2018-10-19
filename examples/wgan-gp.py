@@ -205,8 +205,8 @@ for it in range(1, opt.nIter - 1):
             x_fake = netG(z)
         x_fake = Variable(x_fake.data)
 
-        loss_fake = torch.mean(netD(x_real))
-        loss_real = -torch.mean(netD(x_fake))
+        loss_fake = torch.mean(netD(x_fake))
+        loss_real = -torch.mean(netD(x_real))
 
         batch_size = x_real.size()[0]
         alpha = torch.rand(batch_size, 1, 1, 1).cuda()
