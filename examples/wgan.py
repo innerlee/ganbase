@@ -180,7 +180,7 @@ iters = 0
 d_iter = iter(loader)
 timestart = time.time()
 
-prob_D_real, prob_D_fake, prob_G = 0., 0., 0.
+loss_D_real, loss_D_fake, loss_G = 0., 0., 0.
 for it in range(1, opt.nIter - 1):
 
     ############################
@@ -210,8 +210,8 @@ for it in range(1, opt.nIter - 1):
         loss_real.backward()
         for p in netD.parameters():
             p.data.clamp(-0.01, 0.01)
-        prob_D_real += np.exp(-loss_real.data.item())
-        prob_D_fake += 1 - np.exp(-loss_fake.data.item())
+        loss_D_real += loss_real.data.item()
+        loss_D_fake += loss_fake.data.item()
 
         optimizerD.step()
     #endregion
@@ -234,18 +234,18 @@ for it in range(1, opt.nIter - 1):
         loss_gen = -torch.mean(netD(netG(z)))
         loss_gen.backward()
 
-        prob_G += np.exp(-loss_real.data.item())
+        loss_G += loss_gen.data.item()
 
         optimizerG.step()
     #endregion
 
     if it % opt.drawIter == 0 or it == 1:
-        prob_D_real /= opt.drawIter
-        prob_D_fake /= opt.drawIter
-        prob_G /= opt.drawIter
+        loss_D_real /= opt.drawIter
+        loss_D_fake /= opt.drawIter
+        loss_G /= opt.drawIter
 
         print(
-            f'{datetime.now()}[{it}/{opt.nIter}] probability for D real/fake {prob_D_real:.5}/{prob_D_fake:.5}, G {prob_G:.5}'
+            f'{datetime.now()}[{it}/{opt.nIter}] loss for D real/fake {loss_D_real:.5}/{loss_D_fake:.5}, G {loss_G:.5}'
         )
 
         # eval mode for drawing
@@ -270,9 +270,9 @@ for it in range(1, opt.nIter - 1):
         # back to train mode
         netG.train()
 
-        prob_D_real = 0
-        prob_D_fake = 0
-        prob_G = 0
+        loss_D_real = 0
+        loss_D_fake = 0
+        loss_G = 0
         #endregion
 
         #region Checkpoint
