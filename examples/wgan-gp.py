@@ -1,5 +1,5 @@
 """
-Distance:   D
+Discriminator:   D
 Generator:  G
 Conv networks
 """
@@ -64,7 +64,7 @@ parser.add_argument('--repeatG',        type=int, default=1, help='repeat G per 
 parser.add_argument('--optimizerG',     default='adam', help='adam | rmsprop | sgd, optimizer for G')
 parser.add_argument('--optimizerD',     default='adam', help='adam | rmsprop | sgd, optimizer for D')
 parser.add_argument('--lrG',            type=float, default=0.0001, help='learning rate for Generator, default=0.0001')
-parser.add_argument('--lrD',            type=float, default=0.0001, help='learning rate for Distance, default=0.0001')
+parser.add_argument('--lrD',            type=float, default=0.0001, help='learning rate for Discriminator, default=0.0001')
 parser.add_argument('--beta1G',         type=float, default=0, help='beta1 for adam, G. default=0')
 parser.add_argument('--beta1D',         type=float, default=0, help='beta1 for adam, D. default=0')
 parser.add_argument('--momentG',        type=float, default=0.9, help='moment for sgd, G. default=0.9')
@@ -93,7 +93,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = str(opt.gpu)
 cudnn.benchmark = True
 
 if opt.workdir is None:
-    opt.workdir = f'samples/wgan-gp/exp73_{datetime.now()}'.replace(' ', '_')
+    opt.workdir = f'samples/wgan-gp/exp_{datetime.now()}'.replace(' ', '_')
 
 os.system(f'mkdir -p {opt.workdir}/png')
 sys.stdout = gb.Logger(opt.workdir)
@@ -186,7 +186,7 @@ prob_D_real, prob_D_fake, prob_G = 0., 0., 0.
 for it in range(1, opt.nIter - 1):
 
     ############################
-    # Update Distance D
+    # Update Discriminator D
     ############################
     #region D
     for p in netD.parameters():
@@ -208,7 +208,7 @@ for it in range(1, opt.nIter - 1):
         loss_fake = torch.mean(netD(x_fake))
         loss_real = -torch.mean(netD(x_real))
 
-        batch_size = x_real.size()[0]
+        batch_size = x_real.size(0)
         alpha = torch.rand(batch_size, 1, 1, 1).cuda()
         x_hat = alpha * x_real.data + (1.0 - alpha) * x_fake.data
         x_hat.requires_grad = True
