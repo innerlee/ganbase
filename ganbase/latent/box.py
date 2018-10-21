@@ -72,7 +72,7 @@ class BoxLatent(Latent):
     #     """
     #     assert isinstance(z, Variable)
     #     z = z.repeat(multiple, 1)
-    #     noise = Variable(sigma * torch.randn(z.size())).cuda(async=True)
+    #     noise = Variable(sigma * torch.randn(z.size())).cuda(non_blocking=True)
     #     z = torch.clamp(z + noise, -1, 1)
     #     z_right = Variable(torch.sqrt(1 - z.data**2))
     #     emb = torch.cat((z, z_right), dim=1)

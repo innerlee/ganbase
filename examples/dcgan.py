@@ -1,5 +1,5 @@
 """
-Distance:   D
+Discriminator:   D
 Generator:  G
 Conv networks
 """
@@ -63,7 +63,7 @@ parser.add_argument('--repeatG',        type=int, default=1, help='repeat G per 
 parser.add_argument('--optimizerG',     default='adam', help='adam | rmsprop | sgd, optimizer for G')
 parser.add_argument('--optimizerD',     default='adam', help='adam | rmsprop | sgd, optimizer for D')
 parser.add_argument('--lrG',            type=float, default=0.0001, help='learning rate for Generator, default=0.0001')
-parser.add_argument('--lrD',            type=float, default=0.0001, help='learning rate for Distance, default=0.0001')
+parser.add_argument('--lrD',            type=float, default=0.0001, help='learning rate for Discriminator, default=0.0001')
 parser.add_argument('--beta1G',         type=float, default=0.5, help='beta1 for adam, G. default=0.5')
 parser.add_argument('--beta1D',         type=float, default=0.5, help='beta1 for adam, D. default=0.5')
 parser.add_argument('--momentG',        type=float, default=0.9, help='moment for sgd, G. default=0.5')
@@ -90,7 +90,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = str(opt.gpu)
 cudnn.benchmark = True
 
 if opt.workdir is None:
-    opt.workdir = f'samples/exp73_{datetime.now()}'.replace(' ', '_')
+    opt.workdir = f'samples/dcgan/exp_{datetime.now()}'.replace(' ', '_')
 
 os.system(f'mkdir -p {opt.workdir}/png')
 sys.stdout = gb.Logger(opt.workdir)
@@ -117,9 +117,9 @@ n_row     = opt.nRow
 n_col     = opt.nCol
 valbs     = n_row * n_col
 z_draw_np = latent.sample(valbs).float()
-z_draw    = torch.as_tensor(z_draw_np).cuda(async=True)
+z_draw    = z_draw_np.cuda(non_blocking=True)
 
-dataset, loader = gb.loaddata(
+dataset, loader, opt.nSample = gb.loaddata(
     opt.dataset, opt.dataroot, opt.imageSize, opt.bs, opt.nSample, opt.nWorkers, droplast=True)
 print(f'{opt.nSample} samples')
 
@@ -186,7 +186,7 @@ prob_D_real, prob_D_fake, prob_G = 0., 0., 0.
 for it in range(1, opt.nIter - 1):
 
     ############################
-    # Update Distance D
+    # Update Discriminator D
     ############################
     #region D
     for p in netD.parameters():
@@ -198,10 +198,10 @@ for it in range(1, opt.nIter - 1):
         netD.zero_grad()
 
         x_cpu, _ = next(d_iter)
-        x_real = Variable(x_cpu).cuda(async=True)
+        x_real = Variable(x_cpu).cuda(non_blocking=True)
         z_np = latent.sample(opt.bs).float()
         with torch.no_grad():
-            z = torch.as_tensor(z_np).cuda(async=True)
+            z = z_np.cuda(non_blocking=True)
             x_fake = netG(z)
         x_fake = Variable(x_fake.data)
 
@@ -230,7 +230,7 @@ for it in range(1, opt.nIter - 1):
         netG.zero_grad()
 
         z_np = latent.sample(opt.bs).float()
-        z = torch.as_tensor(z_np).cuda(async=True)
+        z = z_np.cuda(non_blocking=True)
 
         loss_gen = loss(netD(netG(z)), Variable(ones_label))
         loss_gen.backward()
@@ -261,7 +261,7 @@ for it in range(1, opt.nIter - 1):
 
         # 2. random fake
         z_rand_np = latent.sample(valbs).float()
-        z_rand = torch.as_tensor(z_rand_np).cuda(async=True)
+        z_rand = z_rand_np.cuda(non_blocking=True)
         fake = netG(Variable(z_rand))
         vutils.save_image(
             fake.data.mul(0.5).add(0.5),

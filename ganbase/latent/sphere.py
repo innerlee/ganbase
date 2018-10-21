@@ -77,7 +77,7 @@ class SphereLatent(Latent):
     #     z = z.repeat(multiple, 1)
     #     z_norm = Variable(z.data.norm(2, dim=1, keepdim=True) + self.eps)
     #     unitz = z / z_norm
-    #     noise = Variable(sigma * torch.randn(z.size())).cuda(async=True)
+    #     noise = Variable(sigma * torch.randn(z.size())).cuda(non_blocking=True)
     #     vert = noise - (unitz * noise).sum(dim=1, keepdim=True) * unitz
     #     z = unitz * self.R + vert
     #     z_norm = Variable(z.data.norm(2, dim=1, keepdim=True) + self.eps)

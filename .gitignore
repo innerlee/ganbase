@@ -26,3 +26,6 @@ build/
 
 # doc build
 docs/_build/
+
+# pycharm idea files
+.idea/

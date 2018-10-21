@@ -113,4 +113,4 @@ def loaddata(dataset,
     if len(dataloader) == 1:
         dataloader = dataloader[0]
 
-    return dst, dataloader
+    return dst, dataloader, nSample

@@ -47,7 +47,7 @@ class NoiseAugmentor(object):
         mask = np.random.choice(
             [0, 1], (n, 1, w, h), p=[self.ratio,
                                      1 - self.ratio]).astype('float32')
-        mask_gpu = torch.from_numpy(mask).cuda(async=True)
+        mask_gpu = torch.from_numpy(mask).cuda(non_blocking=True)
         return imgs * mask_gpu
 
 
