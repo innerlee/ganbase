@@ -10,6 +10,8 @@ if __name__ == '__main__':
     parser.add_argument('--path', type=str, nargs=2,
                         help=('Path to the generated images or '
                               'to .npz statistic files'))
+    parser.add_argument('--nsamples', type=int, nargs=2,
+                        help='The number of randomly selected samples')
     parser.add_argument('--batch-size', type=int, default=64,
                         help='Batch size to use')
     parser.add_argument('--dims', type=int, default=2048,
@@ -21,5 +23,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
-    fid_value = calculate_fid_given_paths(args.path, args.batch_size, args.gpu != '', args.dims)
+    fid_value = calculate_fid_given_paths(args.path, args.nsamples, args.batch_size, args.gpu != '', args.dims)
     print('FID: ', fid_value)

@@ -7,6 +7,7 @@ from ganbase.evaluation.inception_score import calculate_is_given_path
 if __name__ == '__main__':
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('--path', type=str, help='Path to image dir')
+    parser.add_argument('--nsamples', type=int, help='The number of randomly selected samples')
     parser.add_argument('--batch-size', type=int, default=100, help='Batch size to use')
     parser.add_argument('--splits', type=int, default=10, help='Splits to cal')
     parser.add_argument('--dims', type=int, default=2048,
@@ -18,6 +19,7 @@ if __name__ == '__main__':
 
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     is_m, is_s = calculate_is_given_path(args.path,
+                                         args.nsamples,
                                          args.batch_size,
                                          args.splits,
                                          args.gpu != '',

@@ -1,5 +1,6 @@
 import os
 import pathlib
+import random
 
 import torch
 import numpy as np
@@ -153,7 +154,7 @@ def calculate_activation_statistics(images, model, batch_size=64,
     return mu, sigma
 
 
-def _compute_statistics_of_path(path, model, batch_size, dims, cuda):
+def _compute_statistics_of_path(path, nsample, model, batch_size, dims, cuda):
     if path.endswith('.npz'):
         f = np.load(path)
         m, s = f['mu'][:], f['sigma'][:]
@@ -161,8 +162,9 @@ def _compute_statistics_of_path(path, model, batch_size, dims, cuda):
     else:
         path = pathlib.Path(path)
         files = list(path.glob('*.jpg')) + list(path.glob('*.png'))
+        files_new=random.sample(files,nsample)
 
-        imgs = np.array([imread(str(fn)).astype(np.float32) for fn in files])
+        imgs = np.array([imread(str(fn)).astype(np.float32) for fn in files_new])
 
         # Bring images to shape (B, 3, H, W)
         imgs = imgs.transpose((0, 3, 1, 2))
@@ -176,11 +178,13 @@ def _compute_statistics_of_path(path, model, batch_size, dims, cuda):
     return m, s
 
 
-def calculate_fid_given_paths(paths, batch_size, cuda, dims):
+def calculate_fid_given_paths(paths, nsamples, batch_size, cuda, dims):
     """Calculates the FID of two paths"""
     for p in paths:
         if not os.path.exists(p):
             raise RuntimeError('Invalid path: %s' % p)
+
+    nsample_1, nsample_2 = nsamples[0], nsamples[1]
 
     block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[dims]
 
@@ -188,9 +192,9 @@ def calculate_fid_given_paths(paths, batch_size, cuda, dims):
     if cuda:
         model.cuda()
 
-    m1, s1 = _compute_statistics_of_path(paths[0], model, batch_size,
+    m1, s1 = _compute_statistics_of_path(paths[0], nsample_1, model, batch_size,
                                          dims, cuda)
-    m2, s2 = _compute_statistics_of_path(paths[1], model, batch_size,
+    m2, s2 = _compute_statistics_of_path(paths[1], nsample_2, model, batch_size,
                                          dims, cuda)
     fid_value = calculate_frechet_distance(m1, s1, m2, s2)
 
