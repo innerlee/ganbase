@@ -3,3 +3,4 @@ from .mlp import *
 from .initialization import *
 from .upsampling import *
 from .began import *
+from .cyclegan import *
