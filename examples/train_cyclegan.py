@@ -80,6 +80,7 @@ parser.add_argument('--momentD', type=float, default=0.9, help='moment for sgd, 
 parser.add_argument('--lambdaA', default=10.0, type=float, help='lambda for A')
 parser.add_argument('--lambdaB', default=10.0, type=float, help='lambda for B')
 parser.add_argument('--lambdaI', default=0.5, type=float, help='lambda for Idt')
+parser.add_argument('--use_no_lsgan', action='store_true', help='if true, use GAN instead of LSGAN')
 
 # endregion
 
@@ -90,8 +91,8 @@ parser.add_argument('--snapshotG_B', default='', help="path to net G_B (to conti
 parser.add_argument('--snapshotD_A', default='', help="path to net D_A (to continue training)")
 parser.add_argument('--snapshotD_B', default='', help="path to net D_B (to continue training)")
 parser.add_argument('--drawIter', type=int, default=500, help='how many epoch per drawing')
-parser.add_argument('--nRow', type=int, default=10, help='how many imgs per row')
-parser.add_argument('--nCol', type=int, default=10, help='how many imgs per col')
+parser.add_argument('--nRow', type=int, default=4, help='how many imgs per row')
+parser.add_argument('--nCol', type=int, default=2, help='how many imgs per col')
 parser.add_argument('--workdir', default=None, help='Where to store samples and models')
 # endregion
 
@@ -139,9 +140,6 @@ print(f'{opt.nSample} samples')
 # region Models
 
 # model G
-
-
-# TOOD adjust model
 
 netG_A = gb.cyclegan.CycleGAN_G(opt.imageSize, opt.nc, opt.widthG, opt.nDownSamplingG, opt.nExtraLayerG,
                                 activation=opt.activationG,
@@ -191,10 +189,10 @@ print(netD_B)
 if opt.optimizerG == 'adam':
     optimizerG = optim.Adam(
         itertools.chain(netG_A.parameters(), netG_B.parameters()), lr=opt.lrG, betas=(opt.beta1G, 0.9))
-elif opt.optimizerD == 'rmsprop':
-    optimizerD = optim.RMSprop(itertools.chain(netG_A.parameters(), netG_B.parameters()), lr=opt.lrG)
-elif opt.optimizerD == 'sgd':
-    optimizerD = optim.SGD(itertools.chain(netG_A.parameters(), netG_B.parameters()), lr=opt.lrG, momentum=opt.momentG)
+elif opt.optimizerG == 'rmsprop':
+    optimizerG = optim.RMSprop(itertools.chain(netG_A.parameters(), netG_B.parameters()), lr=opt.lrG)
+elif opt.optimizerG == 'sgd':
+    optimizerG = optim.SGD(itertools.chain(netG_A.parameters(), netG_B.parameters()), lr=opt.lrG, momentum=opt.momentG)
 else:
     raise ValueError('optimizer not supported')
 
@@ -213,12 +211,15 @@ else:
 iters = 0
 d_iter = iter(loader)
 timestart = time.time()
-cri_GAN = gb.GANLoss(use_lsgan=True)
+cri_GAN = gb.GANLoss(use_lsgan=not opt.use_no_lsgan)
 cri_Cycle = nn.L1Loss()
 cri_Idt = nn.L1Loss()
 
 prob_D_A_real, prob_D_A_fake, prob_G_A = 0., 0., 0.
 prob_D_B_real, prob_D_B_fake, prob_G_B = 0., 0., 0.
+
+loss_D_A_real, loss_D_A_fake, loss_G_A = 0., 0., 0.
+loss_D_B_real, loss_D_B_fake, loss_G_B = 0., 0., 0.
 
 for it in range(1, opt.nIter - 1):
 
@@ -245,15 +246,19 @@ for it in range(1, opt.nIter - 1):
 
         loss_idt_A = cri_Idt(idt_A, real_B) * opt.lambdaA * opt.lambdaI
         loss_idt_B = cri_Idt(idt_B, real_A) * opt.lambdaB * opt.lambdaI
-        loss_G_A = cri_GAN(netD_A(fake_B), True)
-        loss_G_B = cri_GAN(netD_B(fake_A), True)
+        loss_gen_A = cri_GAN(netD_A(fake_B), True)
+        loss_gen_B = cri_GAN(netD_B(fake_A), True)
         loss_cycle_A = cri_Cycle(rec_A, real_A) * opt.lambdaA
         loss_cycle_B = cri_Cycle(rec_B, real_B) * opt.lambdaB
-        loss_gen = loss_G_A + loss_G_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B
+        loss_gen = loss_gen_A + loss_gen_B + loss_cycle_A + loss_cycle_B + loss_idt_A + loss_idt_B
         loss_gen.backward(retain_graph=True)
         optimizerG.step()
-        prob_G_A += np.exp(-loss_G_A.detach().item())
-        prob_G_A += np.exp(-loss_G_B.detach().item())
+        if opt.use_no_lsgan:
+            prob_G_A += np.exp(-loss_gen_A.detach().item())
+            prob_G_B += np.exp(-loss_gen_B.detach().item())
+        else:
+            loss_G_A += loss_gen_A.detach().item()
+            loss_G_B += loss_gen_B.detach().item()
 
     # endregion
 
@@ -266,55 +271,70 @@ for it in range(1, opt.nIter - 1):
         gb.set_requires_grad([netD_A, netD_B], True)
         gb.set_requires_grad([netG_A, netG_B], False)
         optimizerD.zero_grad()
-        loss_D_A_real = cri_GAN(netD_A(real_B), False)
-        loss_D_A_fake = cri_GAN(netD_A(fake_B), True)
-        loss_D_A = (loss_D_A_fake + loss_D_A_real) / 2.
-        loss_D_B_real = cri_GAN(netD_B(fake_A), False)
-        loss_D_B_fake = cri_GAN(netD_B(real_A), True)
-        loss_D_B = (loss_D_A_real + loss_D_B_fake) / 2
-        loss_D_A.backward(retain_graph=True)
-        loss_D_B.backward(retain_graph=True)
-
-        prob_D_A_real += np.exp(-loss_D_A_real.detach().item())
-        prob_D_A_fake += 1 - np.exp(-loss_D_A_fake.detach().item())
-        prob_D_B_real += np.exp(-loss_D_B_real.detach().item())
-        prob_D_B_fake += 1 - np.exp(-loss_D_B_fake.detach().item())
-
+        loss_A_real = cri_GAN(netD_A(real_B), False)
+        loss_A_fake = cri_GAN(netD_A(fake_B), True)
+        loss_A = (loss_A_fake + loss_A_real) / 2.
+        loss_B_real = cri_GAN(netD_B(fake_A), False)
+        loss_B_fake = cri_GAN(netD_B(real_A), True)
+        loss_B = (loss_B_real + loss_B_fake) / 2
+        loss_A.backward(retain_graph=True)
+        loss_B.backward(retain_graph=True)
         optimizerD.step()
+
+        if opt.use_no_lsgan:
+            prob_D_A_real += np.exp(-loss_A_real.detach().item())
+            prob_D_A_fake += 1 - np.exp(-loss_A_fake.detach().item())
+            prob_D_B_real += np.exp(-loss_B_real.detach().item())
+            prob_D_B_fake += 1 - np.exp(-loss_B_fake.detach().item())
+        else:
+            loss_D_A_real += loss_A_real.detach().item()
+            loss_D_A_fake += loss_A_fake.detach().item()
+            loss_D_B_real += loss_B_real.detach().item()
+            loss_D_B_fake += loss_B_fake.detach().item()
+
     # endregion
     if it % opt.drawIter == 0 or it == 1:
-        prob_D_A_real /= (opt.drawIter * opt.repeatD)
-        prob_D_A_fake /= (opt.drawIter * opt.repeatD)
-        prob_D_B_real /= (opt.drawIter * opt.repeatD)
-        prob_D_B_fake /= (opt.drawIter * opt.repeatD)
-        prob_G_A /= (opt.drawIter * opt.repeatG)
-        prob_G_B /= (opt.drawIter * opt.repeatG)
+        if opt.use_no_lsgan:
+            prob_D_A_real /= (opt.drawIter * opt.repeatD)
+            prob_D_A_fake /= (opt.drawIter * opt.repeatD)
+            prob_D_B_real /= (opt.drawIter * opt.repeatD)
+            prob_D_B_fake /= (opt.drawIter * opt.repeatD)
+            prob_G_A /= (opt.drawIter * opt.repeatG)
+            prob_G_B /= (opt.drawIter * opt.repeatG)
 
-        print(
-            f'{datetime.now()}[{it}/{opt.nIter}] probability for '
-            f'D_A real/fake {prob_D_A_real:.5}/{prob_D_A_fake:.5},'
-            f'D_B real/fake {prob_D_B_real:.5}/{prob_D_B_fake:.5},'
-            f' G_A {prob_G_A:.5}'
-            f' G_B {prob_G_B:.5}'
-        )
+            print(
+                f'{datetime.now()}[{it}/{opt.nIter}] probability for '
+                f'D_A real/fake {prob_D_A_real:.5}/{prob_D_A_fake:.5},'
+                f'D_B real/fake {prob_D_B_real:.5}/{prob_D_B_fake:.5},'
+                f' G_A {prob_G_A:.5}'
+                f' G_B {prob_G_B:.5}'
+            )
+        else:
+            loss_D_A_real /= (opt.drawIter * opt.repeatD)
+            loss_D_A_fake /= (opt.drawIter * opt.repeatD)
+            loss_D_B_real /= (opt.drawIter * opt.repeatD)
+            loss_D_B_fake /= (opt.drawIter * opt.repeatD)
+            loss_G_A /= (opt.drawIter * opt.repeatG)
+            loss_G_B /= (opt.drawIter * opt.repeatG)
+            print(
+                f'{datetime.now()}[{it}/{opt.nIter}] loss for '
+                f'D_A real/fake {loss_D_A_real:.5}/{loss_D_A_fake:.5},'
+                f'D_B real/fake {loss_D_B_real:.5}/{loss_D_B_fake:.5},'
+                f' G_A {loss_G_A:.5}'
+                f' G_B {loss_G_B:.5}'
+            )
+
         # eval mode for drawing
         netG_A.eval()
         netG_B.eval()
 
-        # TODO style transfer to the fixed images
-        # # 1. fixed random fake
-        # fake = netG(Variable(z_draw))
-        # vutils.save_image(
-        #     fake.data.mul(0.5).add(0.5),
-        #     f'{opt.workdir}/png/{it:06}.png',
-        #     nrow=n_row)
-        #
-        # fake = netG(Variable(z_rand))
-        # vutils.save_image(
-        #     fake.data.mul(0.5).add(0.5),
-        #     f'{opt.workdir}/png/{it:06}_rand.png',
-        #     nrow=n_row)
-
+        real_A_save = real_A[0: n_row].data
+        fake_B_save = fake_B[0: n_row].data
+        real_A2B_save = torch.cat((real_A_save, fake_B_save), dim=0)
+        vutils.save_image(
+            real_A2B_save.mul(0.5).add(0.5),
+            f'{opt.workdir}/png/{it:06}_A2B.png',
+            nrow=n_row)
         # back to train mode
         netG_A.train()
         netG_B.train()
