@@ -271,11 +271,11 @@ for it in range(1, opt.nIter - 1):
         gb.set_requires_grad([netD_A, netD_B], True)
         gb.set_requires_grad([netG_A, netG_B], False)
         optimizerD.zero_grad()
-        loss_A_real = cri_GAN(netD_A(real_B), False)
-        loss_A_fake = cri_GAN(netD_A(fake_B), True)
+        loss_A_real = cri_GAN(netD_A(real_B), True)
+        loss_A_fake = cri_GAN(netD_A(fake_B), False)
         loss_A = (loss_A_fake + loss_A_real) / 2.
-        loss_B_real = cri_GAN(netD_B(fake_A), False)
-        loss_B_fake = cri_GAN(netD_B(real_A), True)
+        loss_B_real = cri_GAN(netD_B(real_A), True)
+        loss_B_fake = cri_GAN(netD_B(fake_A), False)
         loss_B = (loss_B_real + loss_B_fake) / 2
         loss_A.backward(retain_graph=True)
         loss_B.backward(retain_graph=True)
