@@ -128,8 +128,6 @@ class CycleGAN_D(nn.Module):
         else:
             output = self.main(input)
 
-        output = output.view(output.size(0), self.outdim)
-
         return output
 
 

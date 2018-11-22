@@ -39,11 +39,11 @@ parser.add_argument('--dataset', required=True,
 parser.add_argument('--dataroot', default=None, help='path to dataset')
 parser.add_argument('--datatarget', default=None, help='path to target dataset')
 parser.add_argument('--nSample', type=int, default=0, help='how many training samples')
-parser.add_argument('--loadSize', type=int, default=72, help='the height / width of the image when loading')
-parser.add_argument('--imageSize', type=int, default=64, help='the height / width of the input image to network')
+parser.add_argument('--loadSize', type=int, default=286, help='the height / width of the image when loading')
+parser.add_argument('--imageSize', type=int, default=256, help='the height / width of the input image to network')
 parser.add_argument('--nc', type=int, default=3, help='input image channels')
-parser.add_argument('--nWorkers', type=int, default=2, help='number of data loading workers')
-parser.add_argument('--bs', type=int, default=256, help='input batch size')
+parser.add_argument('--nWorkers', type=int, default=4, help='number of data loading workers')
+parser.add_argument('--bs', type=int, default=2, help='input batch size')
 # endregion
 
 # region Args for Net
