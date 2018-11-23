@@ -1,10 +1,7 @@
 """
 DCGAN
 """
-from torch.autograd import Variable
-import torch
 import torch.nn as nn
-import numpy as np
 
 
 def get_activation(activation):

@@ -1,40 +1,27 @@
-#!/usr/bin/env python
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import os
-import sys
-import torch
-import torchvision.datasets as dset
-import torchvision.transforms as transforms
-sys.path.insert(0, os.path.abspath('..'))
-import ganbase as gb  # pylint: disable=C0413
 
+from ganbase.evaluation.inception import InceptionV3
+from ganbase.evaluation.inception_score import calculate_is_given_path
 
-class IgnoreLabelDataset(torch.utils.data.Dataset):
-    def __init__(self, orig):
-        self.orig = orig
+if __name__ == '__main__':
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--path', type=str, help='Path to image dir')
+    parser.add_argument('--nsamples', type=int, help='The number of randomly selected samples')
+    parser.add_argument('--batch-size', type=int, default=100, help='Batch size to use')
+    parser.add_argument('--splits', type=int, default=10, help='Splits to cal')
+    parser.add_argument('--dims', type=int, default=2048,
+                        choices=list(InceptionV3.BLOCK_INDEX_BY_DIM),
+                        help=('Dimensionality of Inception features to use. '
+                              'By default, uses pool3 features'))
+    parser.add_argument('--gpu', default='', type=str, help='GPU to use (leave blank for CPU only)')
+    args = parser.parse_args()
 
-    def __getitem__(self, index):
-        return self.orig[index][0]
-
-    def __len__(self):
-        return len(self.orig)
-
-
-print("Preparing Dataset...")
-cifar = dset.CIFAR10(
-    root='data/',
-    download=True,
-    transform=transforms.Compose([
-        transforms.Scale(32),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ]))
-
-imgs = IgnoreLabelDataset(cifar)
-dataloader = torch.utils.data.DataLoader(imgs, batch_size=50000)
-
-print("Calculating Inception Score...")
-
-for i, batch in enumerate(dataloader, 0):
-    result = gb.inception_score(batch, batch_size=32, splits=10)
-    print("Inception Score: {}".format(result[0]))
-    print("Standard Deviation: {}".format(result[1]))
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+    is_m, is_s = calculate_is_given_path(args.path,
+                                         args.nsamples,
+                                         args.batch_size,
+                                         args.splits,
+                                         args.gpu != '',
+                                         args.dims)
+    print(is_m, is_s)
