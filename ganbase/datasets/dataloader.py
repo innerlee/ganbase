@@ -101,7 +101,7 @@ def loaddata(dataset,
             ]))
     elif dataset == 'lsun':
         dst = LSUN(
-            db_path=dataroot,
+            root=dataroot,
             classes=['bedroom_train'],
             transform=transforms.Compose([
                 transforms.Resize(imageSize),
