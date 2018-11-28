@@ -15,13 +15,13 @@ class GaussLatent(Latent):
         self.dim = dim
         #self.bs = bs
 
-    def sample_guass(self, n):
+    def sample_gauss(self, n):
         """
         random points at sphere S^n embeded in R^{n+1}
 
         returns np array
         """
-        return 2 * torch.rand(n,self.dim) - 1
+        return torch.randn(n, self.dim)
 
     def sample_uniform(self, n):
         return 2 * torch.rand(n,self.dim) - 1

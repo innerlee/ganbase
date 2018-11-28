@@ -52,7 +52,7 @@ parser.add_argument('--normalizeD', default='none', help='batch | instance | non
 
 # region Args for Training
 parser.add_argument('--gpu', type=int, default=0, help='which GPU to use, default to 0')
-parser.add_argument('--nIter', type=int, default=50000, help='number of iteration to train for')
+parser.add_argument('--nIter', type=int, default=100000, help='number of iteration to train for')
 parser.add_argument('--repeatD', type=int, default=1, help='repeat D per iteration')
 parser.add_argument('--repeatG', type=int, default=1, help='repeat G per iteration')
 parser.add_argument('--optimizerG', default='adam', help='adam | rmsprop | sgd, optimizer for G')
@@ -143,34 +143,28 @@ print(netD)
 
 
 # optimizers
-def get_optimizerG(lrG):
-    if opt.optimizerG == 'adam':
-        optimizerG = optim.Adam(netG.parameters(), lr=lrG, betas=(opt.beta1G, 0.999))
-    elif opt.optimizerG == 'rmsprop':
-        optimizerG = optim.RMSprop(netG.parameters(), lr=lrG)
-    elif opt.optimizerG == 'sgd':
-        optimizerG = optim.SGD(netG.parameters(), lr=lrG, momentum=opt.momentG)
-    else:
-        raise ValueError('optimizer not supported')
-    return optimizerG
+
+if opt.optimizerG == 'adam':
+    optimizerG = optim.Adam(netG.parameters(), lr=opt.lrG, betas=(opt.beta1G, 0.999))
+elif opt.optimizerG == 'rmsprop':
+    optimizerG = optim.RMSprop(netG.parameters(), lr=opt.lrG)
+elif opt.optimizerG == 'sgd':
+    optimizerG = optim.SGD(netG.parameters(), lr=opt.lrG, momentum=opt.momentG)
+else:
+    raise ValueError('optimizer not supported')
 
 
-def get_optimizerD(lrD):
-    if opt.optimizerD == 'adam':
-        optimizerD = optim.Adam(netD.parameters(), lr=lrD, betas=(opt.beta1D, 0.999))
-    elif opt.optimizerD == 'rmsprop':
-        optimizerD = optim.RMSprop(netD.parameters(), lr=lrD)
-    elif opt.optimizerD == 'sgd':
-        optimizerD = optim.SGD(netD.parameters(), lr=lrD, momentum=opt.momentD)
-    else:
-        raise ValueError('optimizer not supported')
-    return optimizerD
+
+if opt.optimizerD == 'adam':
+    optimizerD = optim.Adam(netD.parameters(), lr=opt.lrD, betas=(opt.beta1D, 0.999))
+elif opt.optimizerD == 'rmsprop':
+    optimizerD = optim.RMSprop(netD.parameters(), lr=opt.lrD)
+elif opt.optimizerD == 'sgd':
+    optimizerD = optim.SGD(netD.parameters(), lr=opt.lrD, momentum=opt.momentD)
+else:
+    raise ValueError('optimizer not supported')
 
 
-lrG = opt.lrG
-lrD = opt.lrD
-optimizerG = get_optimizerG(lrG)
-optimizerD = get_optimizerD(lrD)
 
 # endregion
 
@@ -179,8 +173,6 @@ optimizerD = get_optimizerD(lrD)
 iters = 0
 d_iter = iter(loader)
 timestart = time.time()
-
-loss = nn.L1Loss(size_average=True)
 
 loss_D, loss_G = 0., 0.
 
@@ -237,7 +229,7 @@ for it in range(1, opt.nIter - 1):
             loss_G /= opt.drawIter
 
         print(
-            f'{datetime.now()}[{it}/{opt.nIter}] loss for D {loss_D:.5}, G {loss_G:.5}  measure {measure: .5}'
+            f'{datetime.now()}[{it}/{opt.nIter}] loss for D {loss_D:.5}, G {loss_G:.5}  measure {measure: .5} lr {opt.lrG: .5}'
         )
 
         # eval mode for drawing
@@ -282,13 +274,13 @@ for it in range(1, opt.nIter - 1):
 
         cur_measure = np.mean(measure_history)
         if cur_measure > prev_measure * 0.9999:
-            lrG *= 0.5
-            lrD *= 0.5
+            opt.lrG *= 0.5
+            opt.lrD *= 0.5
             prev_measure = cur_measure
             for param_group in optimizerG.param_groups:
-                param_group['lr']=lrG
+                param_group['lr'] = opt.lrG
             for param_group in optimizerD.param_groups:
-                param_group['lr'] = lrD
+                param_group['lr'] = opt.lrD
 
 
 time_used = (time.time() - timestart) / 3600

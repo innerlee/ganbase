@@ -6,23 +6,20 @@ Conv networks
 #region Imports yapf: disable
 import argparse
 import random
-import math
 import time
 import os
-from os.path                    import basename, normpath
 import sys
 from collections                import deque
 from datetime                   import datetime
 import numpy                    as np
 import torch
-import torch.autograd           as autograd
 import torch.backends.cudnn     as cudnn
 import torch.optim              as optim
 import torch.nn                 as nn
 from torch.autograd             import Variable
-from torch.optim.lr_scheduler   import StepLR
 import torchvision.utils        as vutils
 sys.path.insert(0, os.path.abspath('..'))
+from use_logger import use_logger
 import ganbase                  as gb # pylint: disable=C0413
 
 #endregion yapf: enable
@@ -57,7 +54,7 @@ parser.add_argument('--normalizeD',     default='batch', help='batch | instance 
 
 #region Args for Training
 parser.add_argument('--gpu',            type=int, default=0, help='which GPU to use, default to 0')
-parser.add_argument('--nIter',          type=int, default=50000, help='number of iteration to train for')
+parser.add_argument('--nIter',          type=int, default=100000, help='number of iteration to train for')
 parser.add_argument('--repeatD',        type=int, default=1, help='repeat D per iteration')
 parser.add_argument('--repeatG',        type=int, default=1, help='repeat G per iteration')
 parser.add_argument('--optimizerG',     default='adam', help='adam | rmsprop | sgd, optimizer for G')
@@ -90,10 +87,9 @@ os.environ['CUDA_VISIBLE_DEVICES'] = str(opt.gpu)
 cudnn.benchmark = True
 
 if opt.workdir is None:
-    opt.workdir = f'samples/sagan/exp_{datetime.now()}'.replace(' ', '_')
+    opt.workdir = f'samples/sagan_{opt.dataset}/exp_{datetime.now()}'.replace(' ', '_')
 
-os.system(f'mkdir -p {opt.workdir}/png')
-sys.stdout = gb.Logger(opt.workdir)
+use_logger(opt.workdir)
 print(sys.argv)
 print(opt)
 
@@ -111,12 +107,7 @@ snaps = deque([])
 #region Parameters yapf: disable
 
 latent    = gb.GaussLatent(opt.nz)
-dim_z     = opt.nz
-bs        = opt.bs
-n_row     = opt.nRow
-n_col     = opt.nCol
-valbs     = n_row * n_col
-z_draw_np = latent.sample(valbs).float()
+z_draw_np = latent.sample_gauss(opt.nRow * opt.nCol).float()
 z_draw    = z_draw_np.cuda(non_blocking=True)
 
 dataset, loader, opt.nSample = gb.loaddata(
@@ -198,7 +189,7 @@ for it in range(1, opt.nIter - 1):
         d_loss_real = torch.nn.ReLU()(1.0 - d_out_real).mean()
 
 
-        z_D = latent.sample(opt.bs).float()
+        z_D = latent.sample_gauss(opt.bs).float()
         with torch.no_grad():
             z_D = z_D.cuda(non_blocking=True)
             x_fake,gf1, gf2 = netG(z_D)
@@ -227,7 +218,7 @@ for it in range(1, opt.nIter - 1):
     for r in range(opt.repeatG):
         netG.zero_grad()
 
-        z_G = latent.sample(opt.bs).float()
+        z_G = latent.sample_gauss(opt.bs).float()
         z_G = z_G.cuda(non_blocking=True)
 
         x_fake,_,_ = netG(z_G)
@@ -257,16 +248,16 @@ for it in range(1, opt.nIter - 1):
         vutils.save_image(
             fake.data.mul(0.5).add(0.5),
             f'{opt.workdir}/png/{it:06}.png',
-            nrow=n_row)
+            nrow=opt.nRow)
 
         # 2. random fake
-        z_rand_np = latent.sample(valbs).float()
+        z_rand_np = latent.sample_gauss(opt.nRow * opt.nCol).float()
         z_rand = z_rand_np.cuda(non_blocking=True)
         fake,_,_ = netG(Variable(z_rand))
         vutils.save_image(
             fake.data.mul(0.5).add(0.5),
             f'{opt.workdir}/png/{it:06}_rand.png',
-            nrow=n_row)
+            nrow=opt.nRow)
 
         # back to train mode
         netG.train()

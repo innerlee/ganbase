@@ -107,61 +107,51 @@ class SAGAN_G(nn.Module):
     def __init__(self, image_size=64, z_dim=100, conv_dim=64):
         super(SAGAN_G, self).__init__()
         self.imsize = image_size
+        layer = []
         layer1 = []
-        layer2 = []
-        layer3 = []
         last = []
 
         repeat_num = int(np.log2(self.imsize)) - 3
-        # repeat_num = int(np.log2(64)) - 3
         mult = 2 ** repeat_num  # 8
-        layer1.append(SpectralNorm(nn.ConvTranspose2d(z_dim, conv_dim * mult, 4)))
-        layer1.append(nn.BatchNorm2d(conv_dim * mult))
-        layer1.append(nn.ReLU())
+        layer.append(SpectralNorm(nn.ConvTranspose2d(z_dim, conv_dim * mult, 4)))
+        layer.append(nn.BatchNorm2d(conv_dim * mult))
+        layer.append(nn.ReLU())
 
         curr_dim = conv_dim * mult
 
-        layer2.append(SpectralNorm(nn.ConvTranspose2d(curr_dim, int(curr_dim / 2), 4, 2, 1)))
-        layer2.append(nn.BatchNorm2d(int(curr_dim / 2)))
-        layer2.append(nn.ReLU())
+        for i in range(repeat_num-1):
+
+            layer.append(SpectralNorm(nn.ConvTranspose2d(curr_dim, int(curr_dim / 2), 4, 2, 1)))
+            layer.append(nn.BatchNorm2d(int(curr_dim / 2)))
+            layer.append(nn.ReLU())
+
+            curr_dim = int(curr_dim / 2)
+
+
+        layer1.append(SpectralNorm(nn.ConvTranspose2d(curr_dim, int(curr_dim / 2), 4, 2, 1)))
+        layer1.append(nn.BatchNorm2d(int(curr_dim / 2)))
+        layer1.append(nn.ReLU())
 
         curr_dim = int(curr_dim / 2)
 
-        layer3.append(SpectralNorm(nn.ConvTranspose2d(curr_dim, int(curr_dim / 2), 4, 2, 1)))
-        layer3.append(nn.BatchNorm2d(int(curr_dim / 2)))
-        layer3.append(nn.ReLU())
 
-        # if self.imsize == 64:
-        layer4 = []
-        curr_dim = int(curr_dim / 2)
-        layer4.append(SpectralNorm(nn.ConvTranspose2d(curr_dim, int(curr_dim / 2), 4, 2, 1)))
-        layer4.append(nn.BatchNorm2d(int(curr_dim / 2)))
-        layer4.append(nn.ReLU())
-        self.l4 = nn.Sequential(*layer4)
-        curr_dim = int(curr_dim / 2)
-
+        self.l = nn.Sequential(*layer)
         self.l1 = nn.Sequential(*layer1)
-        self.l2 = nn.Sequential(*layer2)
-        self.l3 = nn.Sequential(*layer3)
 
         # last.append(nn.ConvTranspose2d(curr_dim//2, 3, 4, 2, 1))
         last.append(nn.ConvTranspose2d(curr_dim, 3, 4, 2, 1))
         last.append(nn.Tanh())
         self.last = nn.Sequential(*last)
 
-        # self.attn1 = Self_Attn( 128//2, 'relu')
-        # self.attn2 = Self_Attn( 64//2,  'relu')
+
         self.attn1 = Self_Attn(128, 'relu')
         self.attn2 = Self_Attn(64, 'relu')
 
     def forward(self, z):
         z = z.view(z.size(0), z.size(1), 1, 1)
-        out = self.l1(z)
-        out = self.l2(out)
-        out = self.l3(out)
+        out = self.l(z)
         out, p1 = self.attn1(out)
-        # if self.imsize==64:
-        out = self.l4(out)
+        out = self.l1(out)
         out, p2 = self.attn2(out)
         out = self.last(out)
 
@@ -174,46 +164,44 @@ class SAGAN_D(nn.Module):
     def __init__(self, image_size=64, conv_dim=64):
         super(SAGAN_D, self).__init__()
         self.imsize = image_size
+        layer = []
         layer1 = []
-        layer2 = []
-        layer3 = []
         last = []
 
-        layer1.append(SpectralNorm(nn.Conv2d(3, conv_dim, 4, 2, 1)))
-        layer1.append(nn.LeakyReLU(0.1))
+        repeat_num = int(np.log2(self.imsize)) - 3
+
+        layer.append(SpectralNorm(nn.Conv2d(3, conv_dim, 4, 2, 1)))
+        layer.append(nn.LeakyReLU(0.1))
 
         curr_dim = conv_dim
 
-        layer2.append(SpectralNorm(nn.Conv2d(curr_dim, curr_dim * 2, 4, 2, 1)))
-        layer2.append(nn.LeakyReLU(0.1))
-        curr_dim = curr_dim * 2
+        for i in range(repeat_num-1):
 
-        layer3.append(SpectralNorm(nn.Conv2d(curr_dim, curr_dim * 2, 4, 2, 1)))
-        layer3.append(nn.LeakyReLU(0.1))
-        curr_dim = curr_dim * 2
-
-        if self.imsize == 64:
-            layer4 = []
-            layer4.append(SpectralNorm(nn.Conv2d(curr_dim, curr_dim * 2, 4, 2, 1)))
-            layer4.append(nn.LeakyReLU(0.1))
-            self.l4 = nn.Sequential(*layer4)
+            #if curr_dim > 128:
+            #    layer.append(SpectralNorm(nn.Conv2d(curr_dim, curr_dim , 4, 2, 1)))
+            #    curr_dim = curr_dim
+            #else:
+            layer.append(SpectralNorm(nn.Conv2d(curr_dim, curr_dim * 2, 4, 2, 1)))
+            layer.append(nn.LeakyReLU(0.1))
             curr_dim = curr_dim * 2
+
+        layer1.append(SpectralNorm(nn.Conv2d(curr_dim, curr_dim * 2, 4, 2, 1)))
+        layer1.append(nn.LeakyReLU(0.1))
+        curr_dim = curr_dim * 2
+
+        self.l = nn.Sequential(*layer)
         self.l1 = nn.Sequential(*layer1)
-        self.l2 = nn.Sequential(*layer2)
-        self.l3 = nn.Sequential(*layer3)
 
         last.append(nn.Conv2d(curr_dim, 1, 4))
         self.last = nn.Sequential(*last)
 
-        self.attn1 = Self_Attn(256, 'relu')
-        self.attn2 = Self_Attn(512, 'relu')
+        self.attn1 = Self_Attn(curr_dim//2, 'relu')
+        self.attn2 = Self_Attn(curr_dim, 'relu')
 
     def forward(self, x):
-        out = self.l1(x)
-        out = self.l2(out)
-        out = self.l3(out)
+        out = self.l(x)
         out, p1 = self.attn1(out)
-        out = self.l4(out)
+        out = self.l1(out)
         out, p2 = self.attn2(out)
         out = self.last(out)
 
