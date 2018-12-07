@@ -177,10 +177,6 @@ class SAGAN_D(nn.Module):
 
         for i in range(repeat_num-1):
 
-            #if curr_dim > 128:
-            #    layer.append(SpectralNorm(nn.Conv2d(curr_dim, curr_dim , 4, 2, 1)))
-            #    curr_dim = curr_dim
-            #else:
             layer.append(SpectralNorm(nn.Conv2d(curr_dim, curr_dim * 2, 4, 2, 1)))
             layer.append(nn.LeakyReLU(0.1))
             curr_dim = curr_dim * 2
