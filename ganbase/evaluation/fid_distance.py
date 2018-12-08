@@ -1,6 +1,7 @@
 import os
 import pathlib
 import random
+import glob
 
 import torch
 import numpy as np
@@ -161,8 +162,10 @@ def _compute_statistics_of_path(path, nsample, model, batch_size, dims, cuda):
         f.close()
     else:
         path = pathlib.Path(path)
-        files = list(path.glob('*.jpg')) + list(path.glob('*.png'))
-        files_new=random.sample(files,nsample)
+        files = list(glob.glob(str(path) + '/**/.jpg', recursive=True)) + list(
+            glob.glob(str(path) + '/**/*.png', recursive=True)) + list(path.glob('*.jpg')) + list(path.glob('*.png'))
+
+        files_new = random.sample(files, nsample)
 
         imgs = np.array([imread(str(fn)).astype(np.float32) for fn in files_new])
 
