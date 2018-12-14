@@ -5,3 +5,5 @@ from .optimizer import *
 from .conversion import *
 from .gpu import *
 from .losses import  *
+from .seed import *
+
