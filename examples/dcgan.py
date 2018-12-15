@@ -89,7 +89,6 @@ print(opt)
 
 gb.random_seed()
 saver = gb.Saver(slot=2, keepnum=3)
-# snaps = deque([])
 
 #endregion
 
@@ -130,26 +129,6 @@ if opt.snapshotD != '':
 netD = netD.cuda()
 print(netD)
 
-# optimizers
-# if opt.optimizerG == 'adam':
-#     optimizerG = optim.Adam(
-#         netG.parameters(), lr=opt.lrG, betas=(opt.beta1G, 0.9))
-# elif opt.optimizerG == 'rmsprop':
-#     optimizerG = optim.RMSprop(netG.parameters(), lr=opt.lrG)
-# elif opt.optimizerG == 'sgd':
-#     optimizerG = optim.SGD(netG.parameters(), lr=opt.lrG, momentum=opt.momentG)
-# else:
-#     raise ValueError('optimizer not supported')
-#
-# if opt.optimizerD == 'adam':
-#     optimizerD = optim.Adam(
-#         netD.parameters(), lr=opt.lrD, betas=(opt.beta1D, 0.9))
-# elif opt.optimizerD == 'rmsprop':
-#     optimizerD = optim.RMSprop(netD.parameters(), lr=opt.lrD)
-# elif opt.optimizerD == 'sgd':
-#     optimizerD = optim.SGD(netD.parameters(), lr=opt.lrD, momentum=opt.momentD)
-# else:
-#     raise ValueError('optimizer not supported')
 optimizerG = gb.get_optimizer(netG.parameters(), opt.optimizerG, lr=opt.lrG, beta1=opt.beta1G, beta2=0.999, eps=1e-8,
                               weight_decay=0, alpha=0.99, momentum=opt.momentG, centered=False, dampening=0,
                               nesterov=False)
