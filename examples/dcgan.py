@@ -105,6 +105,7 @@ print(f'{opt.nSample} samples')
 #endregion yapf: enable
 
 #region Models
+startIter = 1
 
 # model G
 netG = gb.DCGAN_G(opt.imageSize, opt.nc, opt.nz, opt.widthG, opt.nExtraLayerG,
@@ -112,7 +113,7 @@ netG = gb.DCGAN_G(opt.imageSize, opt.nc, opt.nz, opt.widthG, opt.nExtraLayerG,
 netG.apply(gb.weights_init)
 
 if opt.snapshotG != '':
-    saver.load(netG, opt.snapshotG)
+    netG, startIter = saver.load(netG, opt.snapshotG)
 
 netG = netG.cuda()
 print(netG)
@@ -124,10 +125,12 @@ netD = gb.DCGAN_D(opt.imageSize, opt.nc, opt.widthD, opt.nExtraLayerD,
 netD.apply(gb.weights_init)
 
 if opt.snapshotD != '':
-    saver.load(netG, opt.snapshotG)
+    netD, startIter = saver.load(netD, opt.snapshotD)
 
 netD = netD.cuda()
 print(netD)
+
+# optimizers
 
 optimizerG = gb.get_optimizer(netG.parameters(), opt.optimizerG, lr=opt.lrG, beta1=opt.beta1G, beta2=0.999, eps=1e-8,
                               weight_decay=0, alpha=0.99, momentum=opt.momentG, centered=False, dampening=0,
@@ -148,7 +151,7 @@ zeros_label = torch.zeros(opt.bs, 1).cuda()
 loss = nn.BCELoss()
 
 prob_D_real, prob_D_fake, prob_G = 0., 0., 0.
-for it in range(1, opt.nIter - 1):
+for it in range(startIter, opt.nIter - 1):
 
     ############################
     # Update Discriminator D
@@ -244,9 +247,9 @@ for it in range(1, opt.nIter - 1):
         #region Checkpoint
 
         filename = f'{opt.workdir}/netG_epoch_{it:06}.pth'
-        saver.save(netG.state_dict(), filename)
+        saver.save(netG.state_dict(), filename, it)
         filename = f'{opt.workdir}/netD_epoch_{it:06}.pth'
-        saver.save(netG.state_dict(), filename)
+        saver.save(netD.state_dict(), filename, it)
 
     #endregion
 

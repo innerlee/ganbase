@@ -39,7 +39,7 @@ def generate_images(model_choice, model_path, output_dir, imageSize=64, nc=3, nz
         torch.set_default_tensor_type(torch.cuda.FloatTensor)
     else:
         torch.set_default_tensor_type(torch.FloatTensor)
-    model = nn.DataParallel(model)
+    # model = nn.DataParallel(model)
     model.load_state_dict(state_dict)
     if use_cuda:
         model = model.cuda()
@@ -65,12 +65,29 @@ def generate_images(model_choice, model_path, output_dir, imageSize=64, nc=3, nz
 
 if __name__ == '__main__':
     # 需要设置model_path, 设置保存文件夹的路径，然后取消注释
-    os.environ['CUDA_VISIBLE_DEVICES'] = '2'
-    use_cuda = True
-    model_choice = 'sagan'
-    model_path = '/data00/lihuaxia/models/ganbase/lxh_gan_pth/sagan_celeba.pth'
-    output_dir = '/data00/lihuaxia/models/ganbase/results/sagan_celeba'
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+    # use_cuda = True
+    use_cuda = False
+    model_choice = 'dcgan'
+    model_path = '/Users/bytedance/Downloads/lxh_gan_pth/wgangp_cifar10.pth'
+    output_dir = '/Users/bytedance/Desktop/results/wgangp_cifar10'
+    nImages = 10
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
+    # sagan celeba/imagenet
+    # generate_images(model_choice=model_choice, model_path=model_path, output_dir=output_dir,
+    #                 imageSize=64, nc=3, nz=128, widthG=64, use_cuda=use_cuda, nImages=10)
+    # sagan cifar10
+    # generate_images(model_choice=model_choice, model_path=model_path, output_dir=output_dir,
+    #                 imageSize=32, nc=3, nz=128, widthG=64, use_cuda=use_cuda, nImages=10)
+    # began celeba/imagenet
+    # generate_images(model_choice=model_choice, model_path=model_path, output_dir=output_dir,
+    #                 imageSize=64, nc=3, nz=64, widthG=128, use_cuda=use_cuda, nImages=10)
+    # began cifar10
+    # generate_images(model_choice=model_choice, model_path=model_path, output_dir=output_dir,
+    #                 imageSize=32, nc=3, nz=64, widthG=32, use_cuda=use_cuda, nImages=10)
+    # wgangp/wgan/dcgan celeba/imagenet
+    # generate_images(model_choice=model_choice, model_path=model_path, output_dir=output_dir,
+    #                 imageSize=64, nc=3, nz=64, widthG=64, use_cuda=use_cuda, nImages=10)
     generate_images(model_choice=model_choice, model_path=model_path, output_dir=output_dir,
-                    imageSize=64, nc=3, nz=128, widthG=64, use_cuda=use_cuda, nImages=50000)
+                    imageSize=32, nc=3, nz=64, widthG=64, use_cuda=use_cuda, nImages=10)

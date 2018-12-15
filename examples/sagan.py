@@ -9,12 +9,9 @@ import random
 import time
 import os
 import sys
-from collections import deque
 from datetime import datetime
 import numpy                    as np
 import torch
-import torch.backends.cudnn     as cudnn
-import torch.optim              as optim
 import torch.nn                 as nn
 from torch.autograd import Variable
 import torchvision.utils        as vutils
@@ -87,24 +84,16 @@ opt = parser.parse_args()
 
 # region Preparation
 
-os.environ['CUDA_VISIBLE_DEVICES'] = str(opt.gpu)
-cudnn.benchmark = True
+gb.visible_gpu(opt.gpu)
 
 if opt.workdir is None:
     opt.workdir = f'samples/sagan_{opt.dataset}/exp_{datetime.now()}'.replace(' ', '_')
-
 use_logger(opt.workdir)
 print(sys.argv)
 print(opt)
 
-opt.manualSeed = random.randint(1, 10000)
-print(f"Random Seed: {opt.manualSeed}")
-random.seed(opt.manualSeed)
-torch.manual_seed(opt.manualSeed)
-torch.cuda.manual_seed(opt.manualSeed)
-rng = np.random.RandomState(opt.manualSeed)
-
-snaps = deque([])
+gb.random_seed()
+saver = gb.Saver(slot=2, keepnum=3)
 
 # endregion
 
@@ -121,13 +110,14 @@ print(f'{opt.nSample} samples')
 # endregion yapf: enable
 
 # region Models
-
+startIter = 1
 # model G
 netG = gb.SAGAN_G(opt.imageSize, opt.nz, opt.widthG)
 # netG.apply(gb.weights_init)
 
 if opt.snapshotG != '':
-    netG.load_state_dict(torch.load(opt.snapshotG))
+    netG, startIter = saver.load(netG, opt.snapshotG)
+
 
 netG = nn.DataParallel(netG.cuda())
 print(netG)
@@ -137,32 +127,18 @@ netD = gb.SAGAN_D(opt.imageSize, opt.widthD)
 # netD.apply(gb.weights_init)
 
 if opt.snapshotD != '':
-    netD.load_state_dict(torch.load(opt.snapshotD))
+    netD, startIter = saver.load(netD, opt.snapshotD)
 
 netD = nn.DataParallel(netD.cuda())
 print(netD)
 
 # optimizers
-if opt.optimizerG == 'adam':
-    optimizerG = optim.Adam(
-        netG.parameters(), lr=opt.lrG, betas=(opt.beta1G, 0.9))
-elif opt.optimizerG == 'rmsprop':
-    optimizerG = optim.RMSprop(netG.parameters(), lr=opt.lrG)
-elif opt.optimizerG == 'sgd':
-    optimizerG = optim.SGD(netG.parameters(), lr=opt.lrG, momentum=opt.momentG)
-else:
-    raise ValueError('optimizer not supported')
-
-if opt.optimizerD == 'adam':
-    optimizerD = optim.Adam(
-        netD.parameters(), lr=opt.lrD, betas=(opt.beta1D, 0.9))
-elif opt.optimizerD == 'rmsprop':
-    optimizerD = optim.RMSprop(netD.parameters(), lr=opt.lrD)
-elif opt.optimizerD == 'sgd':
-    optimizerD = optim.SGD(netD.parameters(), lr=opt.lrD, momentum=opt.momentD)
-else:
-    raise ValueError('optimizer not supported')
-
+optimizerG = gb.get_optimizer(netG.parameters(), opt.optimizerG, lr=opt.lrG, beta1=opt.beta1G, beta2=0.999, eps=1e-8,
+                              weight_decay=0, alpha=0.99, momentum=opt.momentG, centered=False, dampening=0,
+                              nesterov=False)
+optimizerD = gb.get_optimizer(netD.parameters(), opt.optimizerD, lr=opt.lrD, beta1=opt.beta1D, beta2=0.999, eps=1e-8,
+                              weight_decay=0, alpha=0.99, momentum=opt.momentD, centered=False, dampening=0,
+                              nesterov=False)
 # endregion
 
 # region Training
@@ -271,14 +247,9 @@ for it in range(1, opt.nIter - 1):
         # region Checkpoint
 
         filename = f'{opt.workdir}/netG_epoch_{it:06}.pth'
-        torch.save(netG.state_dict(), filename)
-        snaps.append(filename)
+        saver.save(netG.state_dict(), filename, it)
         filename = f'{opt.workdir}/netD_epoch_{it:06}.pth'
-        torch.save(netD.state_dict(), filename)
-        snaps.append(filename)
-        if len(snaps) > 2 * opt.nSnapshot:
-            os.remove(snaps.popleft())
-            os.remove(snaps.popleft())
+        saver.save(netD.state_dict(), filename, it)
 
     # endregion
 
