@@ -8,12 +8,10 @@ import argparse
 import time
 import os
 import sys
-from collections                import deque
 from datetime                   import datetime
 import numpy                    as np
 import torch
 import torch.nn                 as nn
-from torch.autograd             import Variable
 import torchvision.utils        as vutils
 sys.path.insert(0, os.path.abspath('..'))
 from use_logger import use_logger
@@ -186,15 +184,15 @@ for it in range(1, opt.nIter - 1):
         netD.zero_grad()
 
         x_cpu, _ = next(d_iter)
-        x_real = Variable(x_cpu).cuda(non_blocking=True)
+        x_real = x_cpu.cuda(non_blocking=True)
         z_np = latent.sample_gauss(opt.bs).float()
         with torch.no_grad():
             z = z_np.cuda(non_blocking=True)
             x_fake = netG(z)
-        x_fake = Variable(x_fake.data)
+        x_fake = x_fake.data
 
-        loss_fake = loss(netD(x_fake), Variable(zeros_label))
-        loss_real = loss(netD(x_real), Variable(ones_label))
+        loss_fake = loss(netD(x_fake), zeros_label)
+        loss_real = loss(netD(x_real), ones_label)
 
         loss_fake.backward()
         loss_real.backward()
@@ -220,7 +218,7 @@ for it in range(1, opt.nIter - 1):
         z_np = latent.sample_gauss(opt.bs).float()
         z = z_np.cuda(non_blocking=True)
 
-        loss_gen = loss(netD(netG(z)), Variable(ones_label))
+        loss_gen = loss(netD(netG(z)), ones_label)
         loss_gen.backward()
 
         prob_G += np.exp(-loss_real.data.item())
@@ -241,7 +239,7 @@ for it in range(1, opt.nIter - 1):
         netG.eval()
 
         # 1. fixed random fake
-        fake = netG(Variable(z_draw))
+        fake = netG(z_draw)
         vutils.save_image(
             fake.data.mul(0.5).add(0.5),
             f'{opt.workdir}/png/{it:06}.png',
@@ -250,7 +248,7 @@ for it in range(1, opt.nIter - 1):
         # 2. random fake
         z_rand_np = latent.sample_gauss(opt.nRow * opt.nCol).float()
         z_rand = z_rand_np.cuda(non_blocking=True)
-        fake = netG(Variable(z_rand))
+        fake = netG(z_rand)
         vutils.save_image(
             fake.data.mul(0.5).add(0.5),
             f'{opt.workdir}/png/{it:06}_rand.png',
