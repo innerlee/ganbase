@@ -100,7 +100,7 @@ class InceptionV3(nn.Module):
                 nn.AdaptiveAvgPool2d(output_size=(1, 1))
             ]
             self.blocks.append(nn.Sequential(*block3))
-
+        self.fc = inception.fc
         for param in self.parameters():
             param.requires_grad = requires_grad
 

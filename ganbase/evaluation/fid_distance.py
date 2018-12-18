@@ -1,5 +1,4 @@
 import os
-import pathlib
 import random
 import glob
 
@@ -7,7 +6,6 @@ import torch
 import numpy as np
 from scipy.misc import imread
 from scipy import linalg
-from torch.autograd import Variable
 from torch.nn.functional import adaptive_avg_pool2d
 
 from ganbase.evaluation.inception import InceptionV3
@@ -54,7 +52,6 @@ def get_activations(images, model, batch_size=64, dims=2048,
             end = start + batch_size
 
             batch = torch.from_numpy(images[start:end]).type(torch.FloatTensor)
-            # batch = Variable(batch, volatile=True)
             if cuda:
                 batch = batch.cuda()
 
@@ -162,9 +159,9 @@ def _compute_statistics_of_path(path, nsample, model, batch_size, dims, cuda):
         m, s = f['mu'][:], f['sigma'][:]
         f.close()
     else:
-        path = pathlib.Path(path)
-        files = list(glob.glob(str(path) + '/**/.jpg', recursive=True)) + list(
-            glob.glob(str(path) + '/**/*.png', recursive=True)) + list(path.glob('*.jpg')) + list(path.glob('*.png'))
+        files = list(glob.glob(path + '/**/.jpg', recursive=True)) + list(
+            glob.glob(path + '/**/*.png', recursive=True)) + list(glob.glob(path + '/*.jpg')) + list(
+            glob.glob(path + '/*.png'))
 
         files_new = random.sample(files, nsample)
 

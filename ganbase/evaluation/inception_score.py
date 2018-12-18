@@ -1,12 +1,10 @@
 import os
-import pathlib
 import random
 import glob
 
 import torch
 import numpy as np
 from scipy.misc import imread
-from torch.autograd import Variable
 from torch.nn.functional import adaptive_avg_pool2d
 
 from ganbase.evaluation.inception import InceptionV3
@@ -26,7 +24,7 @@ def get_activations(images, model, batch_size=64, dims=2048,
     n_batches = d0 // batch_size
     n_used_imgs = n_batches * batch_size
 
-    pred_arr = np.empty((n_used_imgs, dims))
+    pred_arr = np.empty((n_used_imgs, 1000))
     with torch.no_grad():
         for i in range(n_batches):
             if verbose:
@@ -36,17 +34,17 @@ def get_activations(images, model, batch_size=64, dims=2048,
             end = start + batch_size
 
             batch = torch.from_numpy(images[start:end]).type(torch.FloatTensor)
-            # batch = Variable(batch, volatile=True)
             if cuda:
                 batch = batch.cuda()
 
             pred = model(batch)[0]
-
+            pred = pred.view(pred.size(0), -1)
+            pred = model.fc(pred)
             # If model output is not scalar, apply global spatial average pooling.
             # This happens if you choose a dimensionality not equal 2048.
-            if pred.shape[2] != 1 or pred.shape[3] != 1:
-                pred = adaptive_avg_pool2d(pred, output_size=(1, 1))
-
+            if pred.dim() == 4:
+                if pred.shape[2] != 1 or pred.shape[3] != 1:
+                    pred = adaptive_avg_pool2d(pred, output_size=(1, 1))
             pred_arr[start:end] = pred.cpu().data.numpy().reshape(batch_size, -1)
 
     if verbose:
@@ -66,8 +64,6 @@ def calculate_inception_score(images, model, batch_size=64, splits=10,
         kl = part * (np.log(part) - np.log(np.expand_dims(np.mean(part, 0), 0)))
         kl = np.mean(np.sum(kl, 1))
         scores.append(np.exp(kl))
-
-    scores = np.concatenate(scores, 0)
     return np.mean(scores), np.std(scores)
 
 
@@ -77,11 +73,9 @@ def _compute_statistics_of_path(path, nsamples, model, batch_size, splits, dims,
         m, s = f['mu'][:], f['sigma'][:]
         f.close()
     else:
-        path = pathlib.Path(path)
-        # files = list(path.glob('*.jpg')) + list(path.glob('*.png'))
-        # files = list(glob.glob(str(path) + '/**/.jpg', recursive=True)) + list(glob.glob(str(path) + '/**/*.png', recursive=True))
-        files = list(glob.glob(str(path) + '/**/.jpg', recursive=True)) + list(
-            glob.glob(str(path) + '/**/*.png', recursive=True)) + list(path.glob('*.jpg')) + list(path.glob('*.png'))
+        files = list(glob.glob(path + '/**/.jpg', recursive=True)) + list(
+            glob.glob(path + '/**/*.png', recursive=True)) + list(glob.glob(path + '/*.jpg')) + list(
+            glob.glob(path + '/*.png'))
         files_new = random.sample(files, nsamples)
         imgs = np.array([imread(str(fn)).astype(np.float32) for fn in files_new])
 
