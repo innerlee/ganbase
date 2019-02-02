@@ -27,5 +27,6 @@ build/
 # doc build
 docs/_build/
 
-# pycharm idea files
+# pycharm/vscode files
 .idea/
+.vscode/
