@@ -117,7 +117,7 @@ class CycleGAN_D(nn.Module):
                         nn.Conv2d(netwidth * n_latter, outdim, 4, 1, 0, bias=self.bias))
 
         if outactivation != 'none':
-            main.add_module(f'final_{cndf}-{outdim}_{outactivation}',
+            main.add_module(f'final_{netwidth*n_latter}-{outdim}_{outactivation}',
                             get_activation(outactivation))
         self.main = main
 
