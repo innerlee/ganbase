@@ -5,3 +5,4 @@ from .upsampling import *
 from .began import *
 from .cyclegan import *
 from .sagan import *
+from .stsgan import *

@@ -137,6 +137,15 @@ def loaddata(dataset,
                 transforms.ToTensor(),
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]))
+    elif dataset == 'stsgan':
+        dst = ImageFolder(
+            root=dataroot,
+            transform=transforms.Compose([
+                transforms.Resize(imageSize),
+                transforms.CenterCrop(imageSize),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            ]))
 
     assert dst
 
