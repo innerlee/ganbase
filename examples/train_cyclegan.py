@@ -90,7 +90,7 @@ parser.add_argument('--snapshotG_A', default='', help="path to net G_A (to conti
 parser.add_argument('--snapshotG_B', default='', help="path to net G_B (to continue training)")
 parser.add_argument('--snapshotD_A', default='', help="path to net D_A (to continue training)")
 parser.add_argument('--snapshotD_B', default='', help="path to net D_B (to continue training)")
-parser.add_argument('--drawIter', type=int, default=500, help='how many epoch per drawing')
+parser.add_argument('--drawIter', type=int, default=500, help='how many iter per drawing')
 parser.add_argument('--nRow', type=int, default=4, help='how many imgs per row')
 parser.add_argument('--nCol', type=int, default=2, help='how many imgs per col')
 parser.add_argument('--workdir', default=None, help='Where to store samples and models')
@@ -342,16 +342,16 @@ for it in range(1, opt.nIter - 1):
 
         # region Checkpoint
 
-        filename = f'{opt.workdir}/netG_A_epoch_{it:06}.pth'
+        filename = f'{opt.workdir}/netG_A_iter_{it:06}.pth'
         torch.save(netG_A.state_dict(), filename)
         snaps.append(filename)
-        filename = f'{opt.workdir}/netG_B_epoch_{it:06}.pth'
+        filename = f'{opt.workdir}/netG_B_iter_{it:06}.pth'
         torch.save(netG_B.state_dict(), filename)
         snaps.append(filename)
-        filename = f'{opt.workdir}/netD_A_epoch_{it:06}.pth'
+        filename = f'{opt.workdir}/netD_A_iter_{it:06}.pth'
         torch.save(netD_A.state_dict(), filename)
         snaps.append(filename)
-        filename = f'{opt.workdir}/netD_B_epoch_{it:06}.pth'
+        filename = f'{opt.workdir}/netD_B_iter_{it:06}.pth'
         torch.save(netD_B.state_dict(), filename)
         snaps.append(filename)
         if len(snaps) > 4 * opt.nSnapshot:
