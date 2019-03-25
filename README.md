@@ -15,7 +15,3 @@
 [Arxiv](https://arxiv.org/pdf/1611.07004.pdf)
 ### CycleGAN
 [Arxiv](https://arxiv.org/pdf/1703.10593.pdf)
-### pix2pixHD
-[Arxiv](https://arxiv.org/pdf/1711.11585.pdf)
-### vid2vid
-[Arxiv](https://arxiv.org/pdf/1808.06601.pdf)
