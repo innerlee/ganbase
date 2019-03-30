@@ -12,7 +12,6 @@ import utils
 import models
 
 
-
 class DCGANModel(base_model.GanModel):
 
     def train(self):
