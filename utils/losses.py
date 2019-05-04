@@ -2,6 +2,7 @@
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class GANLoss(nn.Module):  # gan or lsgan
@@ -39,6 +40,8 @@ class KL_Loss(nn.Module):
         KLD_element = mu.pow(2).add_(logvar.exp()).mul_(-1).add_(1).add_(logvar)
         KLD = torch.mean(KLD_element).mul_(-0.5)
         return KLD
+
+
 
 # TODO update GANLoss
 # TODO add Gradient Cal

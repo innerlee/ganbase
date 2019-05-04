@@ -1,9 +1,7 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash#!/usr/bin/env bash
 
-export PYTHONPATH=$PYTHONPATH:.
-
-python train/dcgan_model.py  \
-    --gpu=0 \
+nohup python train/dcgan_model.py  \
+    --gpu=3 \
     --last_epoch=0 \
     --train_batch=16 \
     --resize_choice=1 \
@@ -18,4 +16,4 @@ python train/dcgan_model.py  \
     --gp_choice=wgan-gp \
     --train_dir=./datasets/ \
     --visdom_env=dcgan \
-    --save_dir=./checkpoints/wgan-gp
+    --save_dir=./checkpoints/wgan-gp >log_wgan-gp &

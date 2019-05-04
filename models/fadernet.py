@@ -324,3 +324,14 @@ def flip_attributes(attributes, params, attribute_id, new_value=None):
         flip_attribute(attribute_id, new_value)
 
     return Variable(attributes.cuda())
+
+
+def get_lambda(l, n_total_iter, lambda_schedule):
+    """
+    Compute discriminators' lambdas.
+    """
+    s = lambda_schedule
+    if s == 0:
+        return l
+    else:
+        return l * float(min(n_total_iter, s)) / s

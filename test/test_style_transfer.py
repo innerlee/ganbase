@@ -29,7 +29,8 @@ def test_pix2pix(use_gpu=True, concat=True):
     # result_suffix = 'cityscapes_val'
     result_suffix = 'night2day_val'
     model = models.pix2pix_cyclegan.UnetGenerator(3, 3, 8, 64, norm_layer=nn.BatchNorm2d, use_dropout=False)
-    model_path = './checkpoints/pix2pix/cityscapes256_lambdaI100_batch4/0200_state.pth'
+    # model_path = './checkpoints/pix2pix/cityscapes256_lambdaI100_batch4/0200_state.pth'
+    model_path = './checkpoints/pix2pix/night2day256_lambdaI100_batch4/0200_state.pth'
     model.load_state_dict(torch.load(model_path, map_location='cpu')['netG'])
     if use_gpu:
         model = model.cuda()
@@ -139,6 +140,6 @@ def test_att_cyclegan(use_gpu=True, concat=True):
 
 
 if __name__ == '__main__':
-    # test_pix2pix()
+    test_pix2pix()
     # test_cyclegan()
-    test_att_cyclegan()
+    # test_att_cyclegan()

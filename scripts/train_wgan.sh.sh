@@ -14,8 +14,8 @@ nohup python train/dcgan_model.py  \
     --d_input_dim=1 \
     --save_img_rows=6 \
     --save_img_cols=12 \
-    --loss_choice=dcgan \
+    --loss_choice=wgan \
     --gp_choice=none \
     --train_dir=./datasets/ \
     --visdom_env=dcgan \
-    --save_dir=./checkpoints/dcgan >log_dcgan &
+    --save_dir=./checkpoints/wgan >log_wgan &

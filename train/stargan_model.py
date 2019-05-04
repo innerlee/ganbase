@@ -232,10 +232,8 @@ class StarGANModel(base_model.GanModel):
 
 if __name__ == '__main__':
     import sys
-
     sys.path.append('.')
     import config
-
     args = config.train_config()
     model = StarGANModel(args)
     model.train()
