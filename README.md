@@ -13,5 +13,12 @@
 ## Style Transfer
 ### pix2pix
 [Arxiv](https://arxiv.org/pdf/1611.07004.pdf)
+![Results on Cityscapes](http://github.com/innerlee/ganbase/raw/lxh2/res/pix2pix.jpg)
 ### CycleGAN
 [Arxiv](https://arxiv.org/pdf/1703.10593.pdf)
+### Attention-CycleGAN
+[Arxiv](https://arxiv.org/pdf/1806.02311.pdf)
+### StarGAN
+[Arxiv](https://arxiv.org/pdf/1711.09020.pdf)
+### FaderNet
+[Arxiv](https://arxiv.org/pdf/1706.00409.pdf)
