@@ -10,6 +10,14 @@
 [Arxiv](https://arxiv.org/pdf/1703.10717.pdf)
 ### SAGAN
 [Arxiv](https://arxiv.org/pdf/1805.08318.pdf)
+
+### Experiments on Cifar-10
+![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/cifar10.jpg)
+### Experiments on ImageNet
+![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/imagenet.jpg)
+### Experiments on CelebA
+![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/celeba.jpg)
+
 ## Style Transfer
 ### pix2pix
 [Arxiv](https://arxiv.org/pdf/1611.07004.pdf)
