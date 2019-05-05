@@ -42,6 +42,26 @@
 #### StarGAN vs FaderNet on CelebA
 ![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/fadernet_vs_stargan.jpg)
 ## Train
+### DCGAN
+```
+python train/dcgan_model.py --gpu=0 --last_epoch=0 --train_batch=16 --resize_choice=1 --load_size=64 --fine_size=64 --display_fre=10 dim=100 --d_input_dim=1 --save_img_rows=6 --save_img_cols=12  loss_choice=dcgan --gp_choice=none --train_dir=./datasets/ --visdom_env=dcgan --save_dir=./checkpoints/dcgan
+```
+### WGAN
+```
+python train/dcgan_model.py --gpu=0 --last_epoch=0 --train_batch=16 --resize_choice=1 --load_size=64 --fine_size=64 --display_fre=10 dim=100 --d_input_dim=1 --save_img_rows=6 --save_img_cols=12  loss_choice=wgan --gp_choice=none --train_dir=./datasets/ --visdom_env=wgan --save_dir=./checkpoints/wgan
+```
+### WGAN-GP
+```
+python train/dcgan_model.py --gpu=0 --last_epoch=0 --train_batch=16 --resize_choice=1 --load_size=64 --fine_size=64 --display_fre=10 dim=100 --d_input_dim=1 --save_img_rows=6 --save_img_cols=12  loss_choice=wgan --gp_choice=wgan-gp --train_dir=./datasets/ --visdom_env=wgan-gp --save_dir=./checkpoints/wgan-gp
+```
+### BEGAN
+```
+python train/began.py --gpu=0 --last_epoch=0 --train_batch=16 --resize_choice=1 --load_size=64 --fine_size=64 --display_fre=10 --g_input_dim=100 --d_input_dim=1 --save_img_rows=6 --save_img_cols=12 --loss_choice=began --gp_choice=none --train_dir=./datasets/ --visdom_env=began --save_dir=./checkpoints/began
+```
+### SAGAN
+```
+python train/sagan.py --gpu=0 --last_epoch=0 --train_batch=16 --resize_choice=1 --load_size=64 --fine_size=64 --display_fre=10 --g_input_dim=100 --d_input_dim=1 --save_img_rows=6 --save_img_cols=12 --loss_choice=wgan --gp_choice=none --train_dir=./datasets/ --visdom_env=sagan --save_dir=./checkpoints/sagan
+```
 ### pix2pix
 ```
 python train/pix2pix_model.py --gpu=0 --resize_choice=3 --flip=1 --workers=4 --save_img_rows=2 --save_img_cols=4 --g_norm_type=instance --g_lr=2e-4 --g_weightdecay=5e-5 --d_norm_type=instance --d_lr=2e-4 --d_weightdecay=5e-5 --display_fre=40 --save_fre=20 --lambdaI=0.5 --visdom_port=8891 --loss_choice=lsgan --g_resnet_blocks=9 --train_dir=./datasets/cityscapes/train --save_dir=./checkpoints/pix2pix/cityscapes256_lambdaI100_batch4 --train_batch=4 --visdom_env=pix2pix_cityscapes256_lambdaI100_batch4 --g_input_dim=3 --d_input_dim=6
@@ -63,6 +83,10 @@ python train/stargan_model.py --gpu=0 --load_size=128 --fine_size=128 --resize_c
 python train/fadernet_model.py --gpu=0 --save_dir=./checkpoints/fadernet --train_dir=./datasets/celeba/Img/img_align_celeba --celeba_attr_path=./datasets/celeba/Anno/list_attr_celeba.txt --img_sz=256 --img_fm=3 --instance_norm=False --init_fm=32 --max_fm=512 --n_layers=6 --n_skip=0 --deconv_method="convtranspose" --hid_dim=512 --dec_dropout=0 --lat_dis_dropout=0.3 --n_lat_dis=1 --n_ptc_dis=0 --n_clf_dis=0 --smooth_label=0.2 --lambda_ae=1 --lambda_lat_dis=0.0001 --lambda_ptc_dis=0 --lambda_clf_dis=0 --lambda_schedule=500000 --clip_grad_norm=5 --display_fre=10 --save_fre=1 --train_batch=32 --selected_attrs Young --attr Young --visdom_env=fadernet_young
 ```
 ## Test
+### DCGAN/WGAN/WGAN-GP/BEGAN/SAGAN
+```
+python test/test_image_generation.py 
+```
 ### pix2pix/CycleGAN/Attention-CycleGAN
 ```
 python test/test_style_transfer.py 
