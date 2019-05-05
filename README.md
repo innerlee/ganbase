@@ -13,7 +13,7 @@
 ## Style Transfer
 ### pix2pix
 [Arxiv](https://arxiv.org/pdf/1611.07004.pdf)
-#### pix2pix results on Cityscapes
+#### pix2pix on Cityscapes
 ![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/pix2pix.jpg)
 ### CycleGAN
 [Arxiv](https://arxiv.org/pdf/1703.10593.pdf)
@@ -25,5 +25,11 @@
 ![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/orange2apple.jpg)
 ### StarGAN
 [Arxiv](https://arxiv.org/pdf/1711.09020.pdf)
+#### StarGAN on CelebA
+![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/stargan.jpg)
 ### FaderNet
 [Arxiv](https://arxiv.org/pdf/1706.00409.pdf)
+#### FaderNet on CelebA
+![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/fadernet.jpg)
+#### StarGAN vs FaderNet on CelebA
+![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/fadernet_vs_stargan.jpg)
