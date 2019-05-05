@@ -13,11 +13,16 @@
 ## Style Transfer
 ### pix2pix
 [Arxiv](https://arxiv.org/pdf/1611.07004.pdf)
+#### pix2pix results on Cityscapes
 ![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/pix2pix.jpg)
 ### CycleGAN
 [Arxiv](https://arxiv.org/pdf/1703.10593.pdf)
 ### Attention-CycleGAN
 [Arxiv](https://arxiv.org/pdf/1806.02311.pdf)
+#### CycleGAN vs Attention-CycleGAN on horse2zebra
+![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/horse2zebra.jpg)
+#### CycleGAN vs Attention-CycleGAN on orange2apple
+![Image](https://github.com/innerlee/ganbase/raw/lxh2/res/orange2apple.jpg)
 ### StarGAN
 [Arxiv](https://arxiv.org/pdf/1711.09020.pdf)
 ### FaderNet
