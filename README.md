@@ -46,4 +46,12 @@ python train/cyclegan_model.py --gpu=0 --resize_choice=3 --flip=1 --workers=4 --
 ```
 python train/att_cyclegan_model.py --gpu=0 --resize_choice=3 --flip=1 --workers=4 --save_img_rows=2 --save_img_cols=4 --g_norm_type=instance --g_lr=2e-4 --g_weightdecay=5e-5 --d_norm_type=instance --d_lr=2e-4 --d_weightdecay=5e-5 --display_fre=20 --save_fre=10 --lambdaA=10 --lambdaB=10 --lambdaI=0 --visdom_port=8891 --loss_choice=lsgan --g_resnet_blocks=9 --train_dir=./datasets/horse2zebra/testA --train_target_dir=./datasets/horse2zebra/testB --save_dir=./checkpoints/att-cyclegan/horse2zebra256_maskT0.1 --train_batch=1 --visdom_env=att-cyclegan_horse2zebra256_maskT0.1 --g_input_dim=3 --d_input_dim=3 --mask_tau=0.1 --train_att_epochs=1 --load_when_switch
 ```
+### StarGAN
+```
+python train/stargan_model.py --gpu=0 --load_size=128 --fine_size=128 --resize_choice=2 --flip=1 --workers=4 --save_img_rows=2 --save_img_cols=4 --g_lr=1e-4 --d_lr=1e-4 --visdom_port=8891 --loss_choice=wgan --g_resnet_blocks=6 --d_resnet_blocks=6 --train_dir=./datasets/celeba/Img/img_align_celeba --celeba_attr_path=./datasets/celeba/Anno/list_attr_celeba.txt --selected_attrs Black_Hair Blond_Hair Brown_Hair Male Young --save_dir=./checlpoints/stargan --train_batch=16 --visdom_env=stargan --epochs=150 --save_fre=5 --display_fre=10 --g_lr_decay_gamma=0.999 --d_lr_decay_gamma=0.999 --g_lr_decay_step=1 --d_lr_decay_step=1
+```
+### FaderNet
+```
+python train/fadernet_model.py --gpu=0 --save_dir=./checkpoints/fadernet --train_dir=./datasets/celeba/Img/img_align_celeba --celeba_attr_path=./datasets/celeba/Anno/list_attr_celeba.txt --img_sz=256 --img_fm=3 --instance_norm=False --init_fm=32 --max_fm=512 --n_layers=6 --n_skip=0 --deconv_method="convtranspose" --hid_dim=512 --dec_dropout=0 --lat_dis_dropout=0.3 --n_lat_dis=1 --n_ptc_dis=0 --n_clf_dis=0 --smooth_label=0.2 --lambda_ae=1 --lambda_lat_dis=0.0001 --lambda_ptc_dis=0 --lambda_clf_dis=0 --lambda_schedule=500000 --clip_grad_norm=5 --display_fre=10 --save_fre=1 --train_batch=32 --selected_attrs Young --attr Young --visdom_env=fadernet_young
+```
 ## Test
