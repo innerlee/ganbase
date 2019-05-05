@@ -38,4 +38,12 @@
 ```
 python train/pix2pix_model.py --gpu=0 --resize_choice=3 --flip=1 --workers=4 --save_img_rows=2 --save_img_cols=4 --g_norm_type=instance --g_lr=2e-4 --g_weightdecay=5e-5 --d_norm_type=instance --d_lr=2e-4 --d_weightdecay=5e-5 --display_fre=40 --save_fre=20 --lambdaI=0.5 --visdom_port=8891 --loss_choice=lsgan --g_resnet_blocks=9 --train_dir=./datasets/cityscapes/train --save_dir=./checkpoints/pix2pix/cityscapes256_lambdaI100_batch4 --train_batch=4 --visdom_env=pix2pix_cityscapes256_lambdaI100_batch4 --g_input_dim=3 --d_input_dim=6
 ```
+### CycleGAN
+```
+python train/cyclegan_model.py --gpu=0 --resize_choice=3 --flip=1 --workers=4 --save_img_rows=2 --save_img_cols=4 --g_norm_type=instance --g_lr=2e-4 --g_weightdecay=5e-5 --d_norm_type=instance --d_lr=2e-4 --d_weightdecay=5e-5 --display_fre=40 --save_fre=20 --lambdaA=10 --lambdaB=10 --lambdaI=0.5 --visdom_port=8891 --loss_choice=lsgan --g_resnet_blocks=9 --train_dir=./datasets/horse2zebra/trainA --train_target_dir=./datasets/horse2zebra/trainB --save_dir=./checkpoints/cyclegan/horse2zebra256_lambdaI0 --train_batch=1 --visdom_env=cyclegan_horse2zebra256_lambdaI0 --g_input_dim=3 --d_input_dim=3
+```
+### Attention-CycleGAN
+```
+python train/att_cyclegan_model.py --gpu=0 --resize_choice=3 --flip=1 --workers=4 --save_img_rows=2 --save_img_cols=4 --g_norm_type=instance --g_lr=2e-4 --g_weightdecay=5e-5 --d_norm_type=instance --d_lr=2e-4 --d_weightdecay=5e-5 --display_fre=20 --save_fre=10 --lambdaA=10 --lambdaB=10 --lambdaI=0 --visdom_port=8891 --loss_choice=lsgan --g_resnet_blocks=9 --train_dir=./datasets/horse2zebra/testA --train_target_dir=./datasets/horse2zebra/testB --save_dir=./checkpoints/att-cyclegan/horse2zebra256_maskT0.1 --train_batch=1 --visdom_env=att-cyclegan_horse2zebra256_maskT0.1 --g_input_dim=3 --d_input_dim=3 --mask_tau=0.1 --train_att_epochs=1 --load_when_switch
+```
 ## Test
